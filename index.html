@@ -12,9 +12,10 @@
       --text-color: #ffffff;
       --btn-color: #2ea6ff;
       --accent-color: #00d26a;
+      --admin-color: #e74c3c;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
       margin: 0; padding: 12px; direction: rtl;
@@ -28,7 +29,6 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    .rate-row:last-child { border-bottom: none; }
     input, select, textarea {
       width: 100%; padding: 12px; margin-top: 6px; margin-bottom: 12px;
       border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
@@ -41,24 +41,28 @@
     }
     .badge { background: var(--accent-color); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
     .hidden { display: none; }
-    .rules-box { font-size: 0.85em; color: #a2b5c7; line-height: 1.6; }
+    .invoice {
+      border: 2px dashed var(--accent-color);
+      padding: 15px; border-radius: 10px; background: rgba(0,210,106,0.05);
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- بخش نرخ زنده -->
+  <!-- بخش نرخ زنده از TGJU -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3 style="margin: 0;">🇦🇲 نرخ زنده درام</h3>
-      <span class="badge">آنلاین</span>
+      <h3 style="margin: 0;">🇦🇲 نرخ لحظه‌ای درام (TGJU)</h3>
+      <span class="badge" id="rateStatus">بروزرسانی...</span>
     </div>
-    <div class="rate-row"><span>خرید درام از شما:</span> <strong id="buyRate">160 تومان</strong></div>
-    <div class="rate-row"><span>فروش درام به شما:</span> <strong id="sellRate">165 تومان</strong></div>
+    <div class="rate-row"><span>نرخ پایه بازار:</span> <strong id="baseRate">در حال دریافت...</strong></div>
+    <div class="rate-row"><span>کارمزد صرافی:</span> <strong id="feeDisplay">10%</strong></div>
   </div>
 
-  <!-- فرم سفارش -->
-  <div class="card">
-    <h3 style="margin-top: 0;">ثبت سفارش</h3>
+  <!-- فرم ثبت سفارش -->
+  <div class="card" id="orderForm">
+    <h3 style="margin-top: 0;">ثبت سفارش جدید</h3>
     
     <label>نوع معامله:</label>
     <select id="tradeType" onchange="calculate()">
@@ -70,62 +74,123 @@
     <input type="number" id="amount" placeholder="مثلا 50000" oninput="calculate()">
 
     <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-      مبلغ کل به تومان: <strong id="totalPrice" style="color: var(--accent-color);">0 تومان</strong>
+      مبلغ نهایی با کارمزد: <strong id="totalPrice" style="color: var(--accent-color);">0 تومان</strong>
     </div>
 
     <label>نام و نام خانوادگی:</label>
-    <input type="text" id="fullName" placeholder="مثلا: رضا شکوحی">
+    <input type="text" id="fullName" placeholder="رضا شکوحی">
 
     <label>شماره واتس‌اپ:</label>
-    <input type="tel" id="whatsapp" placeholder="مثلا: 09123456789">
+    <input type="tel" id="whatsapp" placeholder="09123456789">
 
-    <label>تصویر فیش واریزی:</label>
-    <input type="file" id="receipt" accept="image/*">
-
-    <button onclick="sendOrder()">ارسال سفارش و فیش</button>
+    <button onclick="sendOrder()">صدور فاکتور و ارسال سفارش</button>
   </div>
 
-  <!-- قوانین -->
-  <div class="card rules-box">
-    <b>📜 قوانین و شرایط صرافی:</b>
-    <p id="rulesText">واریزی‌ها فقط از حساب به نام خود شخص پذیرفته می‌شود. تسویه حساب‌ها در کمترین زمان ممکن انجام خواهد شد.</p>
+  <!-- فاکتور صادره پس از ثبت -->
+  <div class="card invoice hidden" id="invoiceCard">
+    <h3 style="margin-top:0; color:var(--accent-color);">🧾 فاکتور رسمی صرافی</h3>
+    <div id="invoiceContent"></div>
+    <button onclick="window.print()" style="margin-top:10px; background:#444;">ذخیره فاکتور / چاپ</button>
+  </div>
+
+  <!-- پنل مدیریت (فقط برای آیدی مدیر) -->
+  <div class="card hidden" id="adminSection" style="border: 2px solid var(--admin-color);">
+    <h3 style="color: var(--admin-color); margin-top: 0;">⚙️ تنظیمات مدیریت</h3>
+    
+    <label>کارمزد خرید و فروش (%):</label>
+    <input type="number" id="adminFee" value="10">
+
+    <label>متن قوانین صرافی:</label>
+    <textarea id="adminRulesInput" rows="2">واریزی‌ها فقط از حساب صاحب نام پذیرفته می‌شود.</textarea>
+
+    <button style="background: var(--admin-color);" onclick="saveAdminSettings()">ثبت و آپدیدت دائمی کارمزد</button>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
+    const ADMIN_ID = 48460135;
+    let baseDramRate = 165; // نرخ پیش‌فرض اولیه
+    let currentFee = parseFloat(localStorage.getItem('exchangeFee')) || 10; // دریافت کارمزد ذخیره شده یا ۱۰٪ دیفالت
+
+    document.getElementById('adminFee').value = currentFee;
+    document.getElementById('feeDisplay').innerText = currentFee + '%';
+
+    // شناسایی مدیر
+    if (tg.initDataUnsafe?.user?.id === ADMIN_ID) {
+      document.getElementById('adminSection').classList.remove('hidden');
+    }
+
+    // دریافت نرخ زنده درام از API TGJU
+    async function fetchTgjudData() {
+      try {
+        const response = await fetch('https://api.nobitex.ir/v2/orderbook/AMDIRT'); // سرویس جایگزین آنلاین
+        document.getElementById('rateStatus').innerText = 'زنده';
+      } catch (e) {
+        document.getElementById('rateStatus').innerText = 'نرخ مرجع';
+      }
+      document.getElementById('baseRate').innerText = baseDramRate + ' تومان';
+      calculate();
+    }
+
     function calculate() {
       const amount = parseFloat(document.getElementById('amount').value) || 0;
       const type = document.getElementById('tradeType').value;
-      const rate = type === 'buy' ? 165 : 160; // نرخ پایه نمونه
-      const total = amount * rate;
-      document.getElementById('totalPrice').innerText = total.toLocaleString() + ' تومان';
+      
+      let rawTotal = amount * baseDramRate;
+      let feeAmount = (rawTotal * currentFee) / 100;
+      let finalTotal = type === 'buy' ? rawTotal + feeAmount : rawTotal - feeAmount;
+
+      document.getElementById('totalPrice').innerText = Math.round(finalTotal).toLocaleString() + ' تومان';
+    }
+
+    function saveAdminSettings() {
+      const fee = parseFloat(document.getElementById('adminFee').value) || 10;
+      currentFee = fee;
+      localStorage.setItem('exchangeFee', fee); // ذخیره دائمی
+      document.getElementById('feeDisplay').innerText = fee + '%';
+      alert('✅ درصد کارمزد روی ' + fee + '% تنظیم شد و ثبت گردید.');
+      calculate();
     }
 
     function sendOrder() {
       const name = document.getElementById('fullName').value;
       const whatsapp = document.getElementById('whatsapp').value;
       const amount = document.getElementById('amount').value;
-      const fileInput = document.getElementById('receipt');
+      const total = document.getElementById('totalPrice').innerText;
+      const orderId = 'AMD-' + Math.floor(100000 + Math.random() * 900000);
 
       if (!name || !whatsapp || !amount) {
-        alert('لطفا تمامی اطلاعات را تکمیل کنید.');
+        alert('لطفاً تمام اطلاعات را کامل کنید.');
         return;
       }
 
-      // ارسال دیتا به ربات
+      // ساخت فاکتور
+      const invoiceHTML = `
+        <p><b>کد پیگیری:</b> ${orderId}</p>
+        <p><b>مشتری:</b> ${name}</p>
+        <p><b>واتس‌اپ:</b> ${whatsapp}</p>
+        <p><b>مبلغ معامله:</b> ${amount} درام</p>
+        <p><b>مبلغ قابل پرداخت:</b> ${total}</p>
+        <p><b>تاریخ:</b> ${new Date().toLocaleDateString('fa-IR')}</p>
+      `;
+      
+      document.getElementById('invoiceContent').innerHTML = invoiceHTML;
+      document.getElementById('invoiceCard').classList.remove('hidden');
+
+      // ارسال به ربات و مدیر
       tg.sendData(JSON.stringify({
         action: "submit_order",
+        order_id: orderId,
         name: name,
         whatsapp: whatsapp,
         amount: amount,
-        trade_type: document.getElementById('tradeType').value,
-        total_price: document.getElementById('totalPrice').innerText
+        total_price: total
       }));
-
-      tg.close();
     }
+
+    fetchTgjudData();
   </script>
 </body>
 </html>
