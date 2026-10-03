@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>صرافی آنلاین ارمنستان</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg-color: #17212b;
+      --card-bg: #232e3c;
+      --text-color: #ffffff;
+      --btn-color: #2ea6ff;
+      --accent-color: #00d26a;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0; padding: 12px; direction: rtl;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px; padding: 15px; margin-bottom: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .rate-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .rate-row:last-child { border-bottom: none; }
+    input, select, textarea {
+      width: 100%; padding: 12px; margin-top: 6px; margin-bottom: 12px;
+      border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
+      background: #0f1721; color: #fff; box-sizing: border-box; font-size: 14px;
+    }
+    button {
+      width: 100%; background: var(--btn-color); color: #fff;
+      border: none; padding: 14px; border-radius: 8px;
+      font-weight: bold; font-size: 16px; cursor: pointer;
+    }
+    .badge { background: var(--accent-color); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+    .hidden { display: none; }
+    .rules-box { font-size: 0.85em; color: #a2b5c7; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+  <!-- بخش نرخ زنده -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0;">🇦🇲 نرخ زنده درام</h3>
+      <span class="badge">آنلاین</span>
+    </div>
+    <div class="rate-row"><span>خرید درام از شما:</span> <strong id="buyRate">160 تومان</strong></div>
+    <div class="rate-row"><span>فروش درام به شما:</span> <strong id="sellRate">165 تومان</strong></div>
+  </div>
+
+  <!-- فرم سفارش -->
+  <div class="card">
+    <h3 style="margin-top: 0;">ثبت سفارش</h3>
+    
+    <label>نوع معامله:</label>
+    <select id="tradeType" onchange="calculate()">
+      <option value="buy">خرید درام (واریز تومان به صرافی)</option>
+      <option value="sell">فروش درام (دریافت تومان از صرافی)</option>
+    </select>
+
+    <label>مبلغ (درام):</label>
+    <input type="number" id="amount" placeholder="مثلا 50000" oninput="calculate()">
+
+    <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+      مبلغ کل به تومان: <strong id="totalPrice" style="color: var(--accent-color);">0 تومان</strong>
+    </div>
+
+    <label>نام و نام خانوادگی:</label>
+    <input type="text" id="fullName" placeholder="مثلا: رضا شکوحی">
+
+    <label>شماره واتس‌اپ:</label>
+    <input type="tel" id="whatsapp" placeholder="مثلا: 09123456789">
+
+    <label>تصویر فیش واریزی:</label>
+    <input type="file" id="receipt" accept="image/*">
+
+    <button onclick="sendOrder()">ارسال سفارش و فیش</button>
+  </div>
+
+  <!-- قوانین -->
+  <div class="card rules-box">
+    <b>📜 قوانین و شرایط صرافی:</b>
+    <p id="rulesText">واریزی‌ها فقط از حساب به نام خود شخص پذیرفته می‌شود. تسویه حساب‌ها در کمترین زمان ممکن انجام خواهد شد.</p>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    function calculate() {
+      const amount = parseFloat(document.getElementById('amount').value) || 0;
+      const type = document.getElementById('tradeType').value;
+      const rate = type === 'buy' ? 165 : 160; // نرخ پایه نمونه
+      const total = amount * rate;
+      document.getElementById('totalPrice').innerText = total.toLocaleString() + ' تومان';
+    }
+
+    function sendOrder() {
+      const name = document.getElementById('fullName').value;
+      const whatsapp = document.getElementById('whatsapp').value;
+      const amount = document.getElementById('amount').value;
+      const fileInput = document.getElementById('receipt');
+
+      if (!name || !whatsapp || !amount) {
+        alert('لطفا تمامی اطلاعات را تکمیل کنید.');
+        return;
+      }
+
+      // ارسال دیتا به ربات
+      tg.sendData(JSON.stringify({
+        action: "submit_order",
+        name: name,
+        whatsapp: whatsapp,
+        amount: amount,
+        trade_type: document.getElementById('tradeType').value,
+        total_price: document.getElementById('totalPrice').innerText
+      }));
+
+      tg.close();
+    }
+  </script>
+</body>
+</html>
