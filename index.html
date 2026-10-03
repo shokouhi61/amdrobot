@@ -10,7 +10,6 @@
             --bg-color: #121824;
             --card-bg: #1e293b;
             --accent-color: #0088cc;
-            --accent-hover: #0077b3;
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
@@ -103,31 +102,12 @@
             box-sizing: border-box;
         }
 
+        select option {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
         input:focus, select:focus {
-            border-color: var(--accent-color);
-        }
-
-        .toggle-type {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .btn-toggle {
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .btn-toggle.active {
-            background-color: var(--accent-color);
-            color: #fff;
             border-color: var(--accent-color);
         }
 
@@ -196,9 +176,12 @@
     <div class="card">
         <div class="card-title">📝 ثبت سفارش معامله</div>
         
-        <div class="toggle-type">
-            <div class="btn-toggle active" id="btn-buy" onclick="setTradeType('buy')">خرید از صرافی</div>
-            <div class="btn-toggle" id="btn-sell" onclick="setTradeType('sell')">فروش به صرافی</div>
+        <div class="form-group">
+            <label>نوع معامله:</label>
+            <select id="trade-type" onchange="calculateOrder()">
+                <option value="buy">خرید از صرافی</option>
+                <option value="sell">فروش به صرافی</option>
+            </select>
         </div>
 
         <div class="form-group">
@@ -212,7 +195,7 @@
         </div>
 
         <div class="form-group">
-            <label>شماره واتس‌اپ / تماس:</label>
+            <label>شماره واتس‌‌اپ / تماس:</label>
             <input type="text" id="order-whatsapp" placeholder="09123456789">
         </div>
 
@@ -279,8 +262,6 @@
         balance_dram: "10,000,000 درام"
     };
 
-    let currentTradeType = "buy";
-
     // بررسی دسترسی ادمین
     const user = tg.initDataUnsafe?.user;
     if (user && user.id === ADMIN_ID) {
@@ -321,21 +302,14 @@
         calculateOrder();
     }
 
-    function setTradeType(type) {
-        currentTradeType = type;
-        document.getElementById('btn-buy').classList.toggle('active', type === 'buy');
-        document.getElementById('btn-sell').classList.toggle('active', type === 'sell');
-
-        calculateOrder();
-    }
-
     function calculateOrder() {
+        const tradeType = document.getElementById('trade-type').value;
         const amount = parseFloat(document.getElementById('order-amount').value) || 0;
         const baseRate = parseFloat(settings.base_rate) || 0;
-        const fee = currentTradeType === 'buy' ? settings.buy_fee : settings.sell_fee;
+        const fee = tradeType === 'buy' ? settings.buy_fee : settings.sell_fee;
 
         let effectiveRate = baseRate;
-        if (currentTradeType === 'buy') {
+        if (tradeType === 'buy') {
             effectiveRate = baseRate * (1 + (fee / 100));
         } else {
             effectiveRate = baseRate * (1 - (fee / 100));
@@ -348,6 +322,7 @@
     }
 
     function submitOrder() {
+        const tradeType = document.getElementById('trade-type').value;
         const amount = document.getElementById('order-amount').value;
         const name = document.getElementById('order-name').value;
         const whatsapp = document.getElementById('order-whatsapp').value;
@@ -365,7 +340,7 @@
             name: name,
             whatsapp: whatsapp,
             amount: amount,
-            trade_type: currentTradeType === 'buy' ? 'خرید از صرافی' : 'فروش به صرافی',
+            trade_type: tradeType === 'buy' ? 'خرید از صرافی' : 'فروش به صرافی',
             total_price: totalPrice
         };
 
@@ -389,4 +364,5 @@
 </script>
 
 </body>
-</html>
+    </html>
+    
