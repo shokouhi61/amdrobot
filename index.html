@@ -29,6 +29,7 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
+    .rate-row:last-child { border-bottom: none; }
     input, select, textarea {
       width: 100%; padding: 12px; margin-top: 6px; margin-bottom: 12px;
       border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
@@ -50,19 +51,38 @@
 </head>
 <body>
 
-  <!-- بخش نرخ زنده از TGJU -->
+  <!-- بخش موجودی و نرخ آنلاین -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3 style="margin: 0;">🇦🇲 نرخ لحظه‌ای درام (TGJU)</h3>
-      <span class="badge" id="rateStatus">بروزرسانی...</span>
+      <h3 style="margin: 0;">🇦🇲 صرافی آنلاین ارمنستان</h3>
+      <span class="badge">آنلاین</span>
     </div>
-    <div class="rate-row"><span>نرخ پایه بازار:</span> <strong id="baseRate">در حال دریافت...</strong></div>
-    <div class="rate-row"><span>کارمزد صرافی:</span> <strong id="feeDisplay">10%</strong></div>
+
+    <!-- نمایش موجودی صرافی -->
+    <div style="background: rgba(0,0,0,0.25); border-radius: 8px; padding: 10px; margin-top: 12px;">
+      <div class="rate-row">
+        <span>💰 موجودی تومانی صرافی:</span>
+        <strong id="balanceTomanDisplay" style="color: var(--btn-color);">7,000,000,000 تومان</strong>
+      </div>
+      <div class="rate-row">
+        <span>🪙 موجودی درامی صرافی:</span>
+        <strong id="balanceDramDisplay" style="color: var(--accent-color);">10,000,000 درام</strong>
+      </div>
+    </div>
+
+    <div class="rate-row" style="margin-top:10px;">
+      <span>نرخ خرید درام از شما:</span>
+      <strong id="buyRateDisplay" style="color: var(--accent-color);">در حال محاسبه...</strong>
+    </div>
+    <div class="rate-row">
+      <span>نرخ فروش درام به شما:</span>
+      <strong id="sellRateDisplay" style="color: var(--accent-color);">در حال محاسبه...</strong>
+    </div>
   </div>
 
   <!-- فرم ثبت سفارش -->
   <div class="card" id="orderForm">
-    <h3 style="margin-top: 0;">ثبت سفارش جدید</h3>
+    <h3 style="margin-top: 0;">ثبت سفارش</h3>
     
     <label>نوع معامله:</label>
     <select id="tradeType" onchange="calculate()">
@@ -73,8 +93,8 @@
     <label>مبلغ (درام):</label>
     <input type="number" id="amount" placeholder="مثلا 50000" oninput="calculate()">
 
-    <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 12px;">
-      مبلغ نهایی با کارمزد: <strong id="totalPrice" style="color: var(--accent-color);">0 تومان</strong>
+    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+      مبلغ قابل پرداخت (تومان): <strong id="totalPrice" style="color: var(--accent-color); font-size: 1.1em;">0 تومان</strong>
     </div>
 
     <label>نام و نام خانوادگی:</label>
@@ -83,27 +103,39 @@
     <label>شماره واتس‌اپ:</label>
     <input type="tel" id="whatsapp" placeholder="09123456789">
 
-    <button onclick="sendOrder()">صدور فاکتور و ارسال سفارش</button>
+    <label>تصویر فیش واریزی (اختیاری):</label>
+    <input type="file" id="receiptImage" accept="image/*">
+
+    <button onclick="sendOrder()">ثبت و ارسال سفارش</button>
   </div>
 
-  <!-- فاکتور صادره پس از ثبت -->
+  <!-- فاکتور رسمی -->
   <div class="card invoice hidden" id="invoiceCard">
     <h3 style="margin-top:0; color:var(--accent-color);">🧾 فاکتور رسمی صرافی</h3>
     <div id="invoiceContent"></div>
-    <button onclick="window.print()" style="margin-top:10px; background:#444;">ذخیره فاکتور / چاپ</button>
+    <p style="font-size:0.85em; color:#a2b5c7; margin-top:10px;">💡 نسخه این فاکتور برای مدیریت صرافی ارسال شد.</p>
   </div>
 
-  <!-- پنل مدیریت (فقط برای آیدی مدیر) -->
+  <!-- پنل مدیریت (مخصوص مدیر) -->
   <div class="card hidden" id="adminSection" style="border: 2px solid var(--admin-color);">
     <h3 style="color: var(--admin-color); margin-top: 0;">⚙️ تنظیمات مدیریت</h3>
     
-    <label>کارمزد خرید و فروش (%):</label>
-    <input type="number" id="adminFee" value="10">
+    <label>موجودی تومانی صرافی:</label>
+    <input type="text" id="adminBalanceToman" value="7,000,000,000 تومان" oninput="saveAdminSettings()">
 
-    <label>متن قوانین صرافی:</label>
-    <textarea id="adminRulesInput" rows="2">واریزی‌ها فقط از حساب صاحب نام پذیرفته می‌شود.</textarea>
+    <label>موجودی درامی صرافی:</label>
+    <input type="text" id="adminBalanceDram" value="10,000,000 درام" oninput="saveAdminSettings()">
 
-    <button style="background: var(--admin-color);" onclick="saveAdminSettings()">ثبت و آپدیدت دائمی کارمزد</button>
+    <label>نرخ پایه درام (تومان):</label>
+    <input type="number" id="adminBaseRate" value="720" oninput="saveAdminSettings()">
+
+    <label>کارمزد خرید از مشتری (%):</label>
+    <input type="number" id="adminBuyFee" value="10" oninput="saveAdminSettings()">
+
+    <label>کارمزد فروش به مشتری (%):</label>
+    <input type="number" id="adminSellFee" value="10" oninput="saveAdminSettings()">
+
+    <button style="background: var(--admin-color);" onclick="saveAdminSettings()">ذخیره تغییرات</button>
   </div>
 
   <script>
@@ -111,46 +143,62 @@
     tg.expand();
 
     const ADMIN_ID = 48460135;
-    let baseDramRate = 165; // نرخ پیش‌فرض اولیه
-    let currentFee = parseFloat(localStorage.getItem('exchangeFee')) || 10; // دریافت کارمزد ذخیره شده یا ۱۰٪ دیفالت
 
-    document.getElementById('adminFee').value = currentFee;
-    document.getElementById('feeDisplay').innerText = currentFee + '%';
+    // مقادیر اولیه و ذخیره‌شده
+    let balanceToman = localStorage.getItem('balanceToman') || "7,000,000,000 تومان";
+    let balanceDram = localStorage.getItem('balanceDram') || "10,000,000 درام";
+    let baseRate = parseFloat(localStorage.getItem('baseRate')) || 720;
+    let buyFee = parseFloat(localStorage.getItem('buyFee')) || 10;
+    let sellFee = parseFloat(localStorage.getItem('sellFee')) || 10;
+
+    document.getElementById('adminBalanceToman').value = balanceToman;
+    document.getElementById('adminBalanceDram').value = balanceDram;
+    document.getElementById('adminBaseRate').value = baseRate;
+    document.getElementById('adminBuyFee').value = buyFee;
+    document.getElementById('adminSellFee').value = sellFee;
 
     // شناسایی مدیر
     if (tg.initDataUnsafe?.user?.id === ADMIN_ID) {
       document.getElementById('adminSection').classList.remove('hidden');
     }
 
-    // دریافت نرخ زنده درام از API TGJU
-    async function fetchTgjudData() {
-      try {
-        const response = await fetch('https://api.nobitex.ir/v2/orderbook/AMDIRT'); // سرویس جایگزین آنلاین
-        document.getElementById('rateStatus').innerText = 'زنده';
-      } catch (e) {
-        document.getElementById('rateStatus').innerText = 'نرخ مرجع';
-      }
-      document.getElementById('baseRate').innerText = baseDramRate + ' تومان';
-      calculate();
-    }
-
     function calculate() {
+      // نمایش موجودی صرافی
+      document.getElementById('balanceTomanDisplay').innerText = balanceToman;
+      document.getElementById('balanceDramDisplay').innerText = balanceDram;
+
       const amount = parseFloat(document.getElementById('amount').value) || 0;
       const type = document.getElementById('tradeType').value;
-      
-      let rawTotal = amount * baseDramRate;
-      let feeAmount = (rawTotal * currentFee) / 100;
-      let finalTotal = type === 'buy' ? rawTotal + feeAmount : rawTotal - feeAmount;
 
-      document.getElementById('totalPrice').innerText = Math.round(finalTotal).toLocaleString() + ' تومان';
+      const effectiveSellRate = baseRate * (1 + (sellFee / 100));
+      const effectiveBuyRate = baseRate * (1 - (buyFee / 100));
+
+      document.getElementById('sellRateDisplay').innerText = Math.round(effectiveSellRate).toLocaleString() + ' تومان';
+      document.getElementById('buyRateDisplay').innerText = Math.round(effectiveBuyRate).toLocaleString() + ' تومان';
+
+      let total = 0;
+      if (type === 'buy') {
+        total = amount * effectiveSellRate;
+      } else {
+        total = amount * effectiveBuyRate;
+      }
+
+      document.getElementById('totalPrice').innerText = Math.round(total).toLocaleString() + ' تومان';
     }
 
     function saveAdminSettings() {
-      const fee = parseFloat(document.getElementById('adminFee').value) || 10;
-      currentFee = fee;
-      localStorage.setItem('exchangeFee', fee); // ذخیره دائمی
-      document.getElementById('feeDisplay').innerText = fee + '%';
-      alert('✅ درصد کارمزد روی ' + fee + '% تنظیم شد و ثبت گردید.');
+      balanceToman = document.getElementById('adminBalanceToman').value;
+      balanceDram = document.getElementById('adminBalanceDram').value;
+      baseRate = parseFloat(document.getElementById('adminBaseRate').value) || 720;
+      buyFee = parseFloat(document.getElementById('adminBuyFee').value) || 0;
+      sellFee = parseFloat(document.getElementById('adminSellFee').value) || 0;
+
+      localStorage.setItem('balanceToman', balanceToman);
+      localStorage.setItem('balanceDram', balanceDram);
+      localStorage.setItem('baseRate', baseRate);
+      localStorage.setItem('buyFee', buyFee);
+      localStorage.setItem('sellFee', sellFee);
+
       calculate();
     }
 
@@ -159,38 +207,40 @@
       const whatsapp = document.getElementById('whatsapp').value;
       const amount = document.getElementById('amount').value;
       const total = document.getElementById('totalPrice').innerText;
+      const type = document.getElementById('tradeType').value == 'buy' ? 'خرید درام' : 'فروش درام';
       const orderId = 'AMD-' + Math.floor(100000 + Math.random() * 900000);
 
       if (!name || !whatsapp || !amount) {
-        alert('لطفاً تمام اطلاعات را کامل کنید.');
+        alert('لطفاً تمامی فیلدها را پر کنید.');
         return;
       }
 
-      // ساخت فاکتور
       const invoiceHTML = `
         <p><b>کد پیگیری:</b> ${orderId}</p>
-        <p><b>مشتری:</b> ${name}</p>
+        <p><b>نوع معامله:</b> ${type}</p>
+        <p><b>نام مشتری:</b> ${name}</p>
         <p><b>واتس‌اپ:</b> ${whatsapp}</p>
         <p><b>مبلغ معامله:</b> ${amount} درام</p>
-        <p><b>مبلغ قابل پرداخت:</b> ${total}</p>
-        <p><b>تاریخ:</b> ${new Date().toLocaleDateString('fa-IR')}</p>
+        <p><b>مبلغ کل:</b> ${total}</p>
+        <p><b>تاریخ ثبت:</b> ${new Date().toLocaleDateString('fa-IR')}</p>
       `;
       
       document.getElementById('invoiceContent').innerHTML = invoiceHTML;
       document.getElementById('invoiceCard').classList.remove('hidden');
 
-      // ارسال به ربات و مدیر
       tg.sendData(JSON.stringify({
         action: "submit_order",
         order_id: orderId,
         name: name,
         whatsapp: whatsapp,
         amount: amount,
+        trade_type: type,
         total_price: total
       }));
     }
 
-    fetchTgjudData();
+    calculate();
   </script>
 </body>
-</html>
+      </html>
+      
