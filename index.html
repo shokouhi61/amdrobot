@@ -145,6 +145,14 @@
             margin-bottom: 8px;
             font-size: 0.8rem;
         }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            border-bottom: 1px dashed #e1e4e8;
+            padding-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -172,7 +180,7 @@
         </div>
     </div>
 
-    <!-- پنل مدیریت (فقط برای ادمین نمایش داده می‌شود) -->
+    <!-- پنل مدیریت -->
     <div class="admin-panel" id="admin-panel">
         <h3>⚙️ پنل مدیریت صرافی</h3>
         <div class="form-group">
@@ -182,10 +190,6 @@
         <div class="form-group">
             <label>موجودی درام:</label>
             <input type="text" id="admin-dram">
-        </div>
-        <div class="form-group">
-            <label>نرخ پایه (تومان):</label>
-            <input type="number" id="admin-base-rate">
         </div>
         <div class="form-group">
             <label>کارمزد خرید (درصد):</label>
@@ -237,7 +241,7 @@
         <button onclick="goToStep2()">مرحله بعدی و اطلاعات بانکی</button>
     </div>
 
-    <!-- فرم ثبت سفارش - مرحله ۲ (اطلاعات بانکی و فیش) -->
+    <!-- فرم ثبت سفارش - مرحله ۲ -->
     <div class="card" id="step-2" style="display: none;">
         <h2>اطلاعات بانکی و آپلود فیش</h2>
         <div class="rules-box" id="bank-instruction-box" style="background:#e8f4fd; border-color:#b8daff; color:#004085;">
@@ -262,7 +266,7 @@
         </div>
 
         <div class="form-group">
-            <label>آلود فیش واریزی (تصویر یا PDF):</label>
+            <label>آپلود فیش واریزی (تصویر یا PDF):</label>
             <input type="file" id="bank-receipt" accept="image/*,application/pdf" onchange="handleFileUpload(event)">
             <img id="file-preview" style="max-width:100%; margin-top:8px; display:none; border-radius:8px;" alt="پیش‌نمایش فیش">
             <div id="pdf-preview" style="font-size:0.8rem; color:var(--primary-color); margin-top:5px;"></div>
@@ -277,14 +281,11 @@
     <div class="card" id="step-receipt" style="display: none; text-align: center;">
         <h2 style="color: var(--success-color);">✅ سفارش شما با موفقیت ثبت شد</h2>
         <p style="font-size: 0.85rem; color: var(--text-muted);">اطلاعات سفارش جهت بررسی و تأیید نهایی برای صرافی ارسال گردید.</p>
-        <div id="receipt-details" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; text-align: right; margin-bottom: 12px; font-size: 0.85rem;">
-            <!-- جزئیات فیش اینجا لود میشود -->
-        </div>
+        <div id="receipt-details" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; text-align: right; margin-bottom: 12px; font-size: 0.85rem;"></div>
         <button onclick="location.reload()">ثبت سفارش جدید</button>
     </div>
-
-        </div>
-    <script>
+</div>
+<script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
@@ -292,7 +293,6 @@
     const API_BASE = "https://shokouhi61.pythonanywhere.com";
 
     let settings = {
-        base_rate: 730,
         buy_fee: 10,
         sell_fee: 10,
         balance_toman: "7,000,000,000 تومان",
@@ -300,7 +300,7 @@
         rules: "۱. تمامی تسویه‌ها پس از تأیید فیش انجام می‌شود."
     };
 
-    let lastValidBaseRate = 730;
+    let currentLiveRate = 740; 
     let orderDataStep1 = {};
     let isFileUploaded = false;
 
@@ -309,15 +309,25 @@
         document.getElementById('admin-panel').style.display = 'block';
     }
 
+    async function fetchLiveRate() {
+        try {
+            const res = await fetch("https://open.er-api.com/v6/latest/USD");
+            if (res.ok) {
+                const data = await res.json();
+            }
+        } catch (e) {}
+    }
+
     async function fetchSettings() {
+        await fetchLiveRate();
         try {
             const res = await fetch(API_BASE + "/get_settings?t=" + new Date().getTime());
             if (res.ok) {
                 const data = await res.json();
                 if (data.settings) {
                     settings = data.settings;
-                    if (settings.base_rate && !isNaN(settings.base_rate)) {
-                        lastValidBaseRate = parseFloat(settings.base_rate);
+                    if (data.settings.base_rate && !isNaN(data.settings.base_rate)) {
+                        currentLiveRate = parseFloat(data.settings.base_rate);
                     }
                     applySettingsUI();
                 }
@@ -325,11 +335,9 @@
                     renderOpenOrders(data.open_orders);
                 }
             } else {
-                settings.base_rate = lastValidBaseRate;
                 applySettingsUI();
             }
         } catch (e) {
-            settings.base_rate = lastValidBaseRate;
             applySettingsUI();
         }
     }
@@ -341,7 +349,7 @@
             document.getElementById('disp-rules').innerText = settings.rules;
         }
 
-        const base = parseFloat(settings.base_rate) || lastValidBaseRate;
+        const base = currentLiveRate;
         const buyFee = parseFloat(settings.buy_fee) || 0;
         const sellFee = parseFloat(settings.sell_fee) || 0;
 
@@ -353,7 +361,6 @@
 
         document.getElementById('admin-toman').value = settings.balance_toman || "";
         document.getElementById('admin-dram').value = settings.balance_dram || "";
-        document.getElementById('admin-base-rate').value = base;
         document.getElementById('admin-buy-fee').value = settings.buy_fee || 10;
         document.getElementById('admin-sell-fee').value = settings.sell_fee || 10;
         document.getElementById('admin-rules').value = settings.rules || "";
@@ -384,7 +391,7 @@
         const rawAmount = document.getElementById('order-amount').value;
         const amount = parseFloat(rawAmount) || 0;
         
-        const baseRate = parseFloat(settings.base_rate) || lastValidBaseRate;
+        const baseRate = currentLiveRate;
         const buyFee = parseFloat(settings.buy_fee) || 0;
         const sellFee = parseFloat(settings.sell_fee) || 0;
 
@@ -494,20 +501,15 @@
             return;
         }
 
-        if (!isFileUploaded) {
-            tg.showAlert("لطفاً تصویر فیش یا فایل PDF واریزی را آپلود نمایید.");
-            return;
-        }
-
         const orderId = 'AMD-' + Math.floor(100000 + Math.random() * 900000);
         const payload = {
             action: "submit_order",
             order_id: orderId,
             ...orderDataStep1,
-            card_number: card,
-            account_number: account,
-            sheba_number: sheba,
-            bank_name: bankName
+            card_number: card || "-",
+            account_number: account || "-",
+            sheba_number: sheba || "-",
+            bank_name: bankName || "-"
         };
 
         try {
@@ -553,7 +555,6 @@
             action: "update_settings",
             balance_toman: document.getElementById('admin-toman').value,
             balance_dram: document.getElementById('admin-dram').value,
-            base_rate: document.getElementById('admin-base-rate').value,
             buy_fee: document.getElementById('admin-buy-fee').value,
             sell_fee: document.getElementById('admin-sell-fee').value,
             rules: document.getElementById('admin-rules').value
