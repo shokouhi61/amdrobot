@@ -3,372 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صرافی آنلاین ارمنستان</title>
+    <title>صرافی درام</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #0284c7;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --danger-color: #ef4444;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --primary-color: #2481cc;
+            --primary-hover: #1b6ca8;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --border-color: #e1e4e8;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             margin: 0;
             padding: 12px;
-            box-sizing: border-box;
             direction: rtl;
         }
 
         .container {
             max-width: 480px;
             margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
         }
 
         .card {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 14px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-
-        .card-title {
-            font-size: 1rem;
-            font-weight: bold;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
             margin-bottom: 12px;
-            color: var(--accent-color);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .balance-grid, .rates-grid {
+        h2, h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .rates-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
-        .grid-box {
-            background-color: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .rate-box {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             padding: 10px;
-            border-radius: 10px;
             text-align: center;
         }
 
-        .box-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .box-val {
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-top: 4px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 10px;
-        }
-
-        label {
+        .rate-box span {
+            display: block;
             font-size: 0.8rem;
             color: var(--text-muted);
         }
 
+        .rate-box strong {
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .balance-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
         input, select, textarea {
-            background-color: rgba(0, 0, 0, 0.2);
+            width: 100%;
+            padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 10px;
-            color: var(--text-color);
-            font-size: 0.95rem;
-            outline: none;
-            width: 100%;
             box-sizing: border-box;
-            direction: rtl;
-            text-align: right;
-        }
-
-        input[type="number"] {
-            direction: ltr;
-            text-align: left;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--accent-color);
-        }
-
-        .summary-box {
-            background-color: rgba(0, 0, 0, 0.3);
-            border: 1px dashed var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 8px;
             font-size: 0.9rem;
-            text-align: center;
+            background: #fff;
         }
 
-        .btn-submit {
-            background-color: var(--accent-color);
-            color: #fff;
+        button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
             border: none;
-            border-radius: 8px;
             padding: 12px;
-            font-size: 0.95rem;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            width: 100%;
-            margin-top: 6px;
+            transition: background 0.2s;
         }
 
-        .btn-support {
-            background-color: #22c55e;
-            text-align: center;
-            text-decoration: none;
-            display: block;
-            box-sizing: border-box;
-            margin-top: 10px;
+        button:hover {
+            background-color: var(--primary-hover);
         }
 
-        .btn-danger {
-            background-color: var(--danger-color);
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            border: none;
-            border-radius: 6px;
-            color: white;
-            cursor: pointer;
-            margin-top: 4px;
-            display: none;
-        }
-
-        #file-preview, #pdf-preview {
-            width: 100%;
-            max-height: 150px;
-            object-fit: contain;
+        .rules-box {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
             border-radius: 8px;
-            margin-top: 6px;
-            display: none;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
         }
 
-        #step-2, #step-receipt, #admin-panel {
+        .admin-panel {
+            background: #e2f0d9;
+            border: 1px solid #c8e1b7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
             display: none;
         }
 
         .order-card-item {
-            background-color: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 10px;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 6px;
             margin-bottom: 8px;
             font-size: 0.8rem;
-        }
-
-        .receipt-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.85rem;
-        }
-
-        .admin-section-box {
-            background-color: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+<div class="container">
 
+    <!-- بخش نرخ‌ها و موجودی -->
     <div class="card">
-        <div class="card-title">💵 نرخ‌ها و موجودی لحظه‌ای صرافی</div>
-        <div class="balance-grid">
-            <div class="grid-box">
-                <div class="box-label">موجودی تومان</div>
-                <div class="box-val" id="disp-toman">--</div>
+        <h2>نرخ لحظه‌ای صرافی</h2>
+        <div class="rates-grid">
+            <div class="rate-box">
+                <span>نرخ خرید از شما</span>
+                <strong id="disp-buy-rate">0 Toman</strong>
             </div>
-            <div class="grid-box">
-                <div class="box-label">موجودی درام</div>
-                <div class="box-val" id="disp-dram">--</div>
+            <div class="rate-box">
+                <span>نرخ فروش به شما</span>
+                <strong id="disp-sell-rate">0 Toman</strong>
             </div>
         </div>
-
-        <div class="rates-grid">
-            <div class="grid-box" style="border-color: rgba(16, 185, 129, 0.3);">
-                <div class="box-label">نرخ خرید صرافی از شما</div>
-                <div class="box-val" id="disp-buy-rate" style="color: var(--success-color);">--</div>
-            </div>
-            <div class="grid-box" style="border-color: rgba(2, 132, 199, 0.3);">
-                <div class="box-label">نرخ فروش صرافی به شما</div>
-                <div class="box-val" id="disp-sell-rate" style="color: var(--accent-color);">--</div>
-            </div>
+        <div class="balance-info">
+            <span>موجودی تومان: <b id="disp-toman">7,000,000,000 تومان</b></span>
+            <span>موجودی درام: <b id="disp-dram">10,000,000 درام</b></span>
+        </div>
+        <div class="rules-box" id="disp-rules">
+            ۱. تمامی تسویه‌ها پس از تأیید فیش انجام می‌شود.
         </div>
     </div>
 
-    <div class="card" id="step-1">
-        <div class="card-title">📝 ثبت سفارش معامله (گام ۱ از ۲)</div>
+    <!-- پنل مدیریت (فقط برای ادمین نمایش داده می‌شود) -->
+    <div class="admin-panel" id="admin-panel">
+        <h3>⚙️ پنل مدیریت صرافی</h3>
+        <div class="form-group">
+            <label>موجودی تومان:</label>
+            <input type="text" id="admin-toman">
+        </div>
+        <div class="form-group">
+            <label>موجودی درام:</label>
+            <input type="text" id="admin-dram">
+        </div>
+        <div class="form-group">
+            <label>نرخ پایه (تومان):</label>
+            <input type="number" id="admin-base-rate">
+        </div>
+        <div class="form-group">
+            <label>کارمزد خرید (درصد):</label>
+            <input type="number" id="admin-buy-fee" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>کارمزد فروش (درصد):</label>
+            <input type="number" id="admin-sell-fee" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>قوانین و اطلاعیه‌ها:</label>
+            <textarea id="admin-rules" rows="2"></textarea>
+        </div>
+        <button onclick="updateSettings()" style="background-color: var(--success-color); margin-bottom: 12px;">ذخیره و اعمال تنظیمات</button>
         
+        <hr style="border:0; border-top:1px solid #c8e1b7; margin: 12px 0;">
+        <h3 style="font-size:0.95rem;">📦 سفارش‌های باز کاربران:</h3>
+        <div id="open-orders-list">
+            <p style="color:var(--text-muted); font-size:0.8rem;">سفارش بازی یافت نشد.</p>
+        </div>
+    </div>
+
+    <!-- فرم ثبت سفارش - مرحله ۱ -->
+    <div class="card" id="step-1">
+        <h2>ثبت سفارش جدید</h2>
         <div class="form-group">
             <label>نوع معامله:</label>
             <select id="trade-type" onchange="onTradeTypeChange()">
-                <option value="buy">خرید درام از صرافی (ارسال ریال)</option>
-                <option value="sell">فروش درام به صرافی (دریافت ریال)</option>
+                <option value="buy">خرید درام (پرداخت تومان)</option>
+                <option value="sell">فروش درام (دریافت تومان)</option>
             </select>
         </div>
-
         <div class="form-group">
-            <label>مقدار درام:</label>
-            <input type="number" id="order-amount" placeholder="مثلاً 50000" oninput="calculateOrder()">
+            <label>مقدار درام (AMD):</label>
+            <input type="number" id="order-amount" placeholder="مثال: 50000" oninput="calculateOrder()">
         </div>
-
+        <div class="form-group">
+            <label>مبلغ نهایی محاسبه شده:</label>
+            <div id="calc-total-price" style="font-weight:bold; color:var(--success-color); font-size:1.1rem; padding: 6px 0;">0 Toman</div>
+        </div>
         <div class="form-group">
             <label>نام و نام خانوادگی:</label>
             <input type="text" id="order-name" placeholder="نام خود را وارد کنید">
         </div>
-
         <div class="form-group">
-            <label>شماره واتس‌اپ / تماس:</label>
-            <input type="number" id="order-whatsapp" placeholder="09123456789">
+            <label>شماره تماس / واتس‌اپ:</label>
+            <input type="text" id="order-whatsapp" placeholder="مثال: 09123456789">
         </div>
-
-        <div class="summary-box">
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">مقدار تومان:</div>
-            <strong id="calc-total-price" style="color: var(--success-color); font-size: 1.3rem;">0 Toman</strong>
-        </div>
-
-        <button class="btn-submit" onclick="goToStep2()">ادامه و تکمیل اطلاعات بانکی ➔</button>
+        <button onclick="goToStep2()">مرحله بعدی و اطلاعات بانکی</button>
     </div>
 
-    <div class="card">
-        <div class="card-title" style="color: var(--warning-color)">📜 قوانین و مقررات معامله</div>
-        <div id="disp-rules" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; white-space: pre-line;">
-            بارگذاری قوانین...
-        </div>
-    </div>
-
-    <div class="card" id="step-2">
-        <div class="card-title">💳 مشخصات بانکی و فیش واریزی (گام ۲ از ۲)</div>
-
-        <div id="bank-instruction-box" style="background: rgba(2, 132, 199, 0.1); border: 1px solid var(--accent-color); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.8rem; line-height: 1.6;">
-            لطفاً میزان پرداختی خود را به حساب مربوطه به نام صرافی آنلاین ارمنستان واریز نمایید.
+    <!-- فرم ثبت سفارش - مرحله ۲ (اطلاعات بانکی و فیش) -->
+    <div class="card" id="step-2" style="display: none;">
+        <h2>اطلاعات بانکی و آپلود فیش</h2>
+        <div class="rules-box" id="bank-instruction-box" style="background:#e8f4fd; border-color:#b8daff; color:#004085;">
+            لطفاً اطلاعات حساب مقصد را وارد کرده و تصویر فیش واریزی را آپلود نمایید.
         </div>
 
         <div class="form-group" id="group-card">
-            <label>شماره کارت بانکی:</label>
-            <input type="number" id="bank-card" placeholder="شماره کارت">
+            <label>شماره کارت ارمنی (جهت دریافت درام):</label>
+            <input type="text" id="bank-card" placeholder="16 رقمی کارت ارمنی">
         </div>
-
         <div class="form-group" id="group-account" style="display: none;">
-            <label>شماره حساب بانکی:</label>
-            <input type="number" id="bank-account" placeholder="شماره حساب">
+            <label>شماره حساب ایرانی:</label>
+            <input type="text" id="bank-account" placeholder="شماره حساب">
         </div>
-
         <div class="form-group" id="group-sheba" style="display: none;">
-            <label>شماره شبا بدون IR:</label>
-            <input type="number" id="bank-sheba" placeholder="شماره شبا">
+            <label>شماره شبا (بدون IR):</label>
+            <input type="text" id="bank-sheba" placeholder="24 رقم شبا">
         </div>
-
         <div class="form-group" id="group-bank-name">
-            <label>نام بانک:</label>
-            <input type="text" id="bank-name" placeholder="مثلاً Ameriabank / Evocabank / ACBA">
+            <label>نام بانک مقصد:</label>
+            <input type="text" id="bank-name" placeholder="مثال: Inecobank یا ملی">
         </div>
 
         <div class="form-group">
-            <label>تصویر فیش یا فایل PDF (حداکثر 10MB - اجباری):</label>
-            <input type="file" id="bank-receipt" accept="image/jpeg,image/png,application/pdf" onchange="handleFileUpload(event)">
-            <img id="file-preview" alt="پیش‌نمایش تصویر">
-            <div id="pdf-preview" style="color: var(--success-color); font-size: 0.8rem; margin-top: 4px;"></div>
-            <button id="btn-remove-file" class="btn-danger" onclick="removeUploadedFile()">❌ حذف فایل و انتخاب مجدد</button>
+            <label>آلود فیش واریزی (تصویر یا PDF):</label>
+            <input type="file" id="bank-receipt" accept="image/*,application/pdf" onchange="handleFileUpload(event)">
+            <img id="file-preview" style="max-width:100%; margin-top:8px; display:none; border-radius:8px;" alt="پیش‌نمایش فیش">
+            <div id="pdf-preview" style="font-size:0.8rem; color:var(--primary-color); margin-top:5px;"></div>
+            <button type="button" id="btn-remove-file" onclick="removeUploadedFile()" style="background-color:var(--danger-color); margin-top:8px; display:none; padding:6px; font-size:0.8rem;">حذف فایل و انتخاب مجدد</button>
         </div>
 
-        <button class="btn-submit" onclick="submitFinalOrder()">تکمیل و ارسال نهایی سفارش</button>
-        <button class="btn-submit" style="background-color: transparent; border: 1px solid var(--border-color);" onclick="backToStep1()">بازگشت به مرحله قبل</button>
+        <button onclick="submitFinalOrder()" style="background-color: var(--success-color); margin-bottom: 8px;">ثبت نهایی سفارش</button>
+        <button onclick="backToStep1()" style="background-color: var(--text-muted);">بازگشت به مرحله قبل</button>
     </div>
 
-    <div class="card" id="step-receipt">
-        <div class="card-title" style="color: var(--success-color)">🧾 رسید ثبت سفارش</div>
-        <div id="receipt-details"></div>
-        <div style="background-color: rgba(16, 185, 129, 0.1); border: 1px solid var(--success-color); padding: 10px; border-radius: 8px; margin-top: 12px; text-align: center; font-size: 0.85rem; color: var(--success-color);">
-            ⏳ سفارش شما با موفقیت ثبت شد.<br><b>منتظر تأیید صرافی در اسرع وقت باشید.</b>
+    <!-- صفحه رسید نهایی -->
+    <div class="card" id="step-receipt" style="display: none; text-align: center;">
+        <h2 style="color: var(--success-color);">✅ سفارش شما با موفقیت ثبت شد</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">اطلاعات سفارش جهت بررسی و تأیید نهایی برای صرافی ارسال گردید.</p>
+        <div id="receipt-details" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; text-align: right; margin-bottom: 12px; font-size: 0.85rem;">
+            <!-- جزئیات فیش اینجا لود میشود -->
         </div>
+        <button onclick="location.reload()">ثبت سفارش جدید</button>
     </div>
 
-    <a href="https://t.me/shokouhi61" target="_blank" class="btn-submit btn-support">💬 پشتیبانی آنلاین صرافی (ارتباط مستقیم)</a>
-
-    <div class="card" id="admin-panel">
-        <div class="card-title" style="color: var(--danger-color)">⚙️ ویرایش دائمی آیتم‌های اصلی صرافی (مدیریت)</div>
-        
-        <div class="admin-section-box">
-            <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">1. تنظیمات مالی و کارمزدها</div>
-            <div class="form-group">
-                <label>نرخ پایه درام (تومان):</label>
-                <input type="number" id="admin-base-rate" value="730">
-            </div>
-            <div class="form-group">
-                <label>درصد کارمزد خرید (%):</label>
-                <input type="number" id="admin-buy-fee" value="10">
-            </div>
-            <div class="form-group">
-                <label>درصد کارمزد فروش (%):</label>
-                <input type="number" id="admin-sell-fee" value="10">
-            </div>
         </div>
-
-        <div class="admin-section-box">
-            <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">2. موجودی‌های صرافی</div>
-            <div class="form-group">
-                <label>موجودی تومانی:</label>
-                <input type="text" id="admin-toman" value="7,000,000,000 تومان">
-            </div>
-            <div class="form-group">
-                <label>موجودی درامی:</label>
-                <input type="text" id="admin-dram" value="10,000,000 درام">
-            </div>
-        </div>
-
-        <div class="admin-section-box">
-            <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">3. قوانین و مقررات عمومی</div>
-            <div class="form-group">
-                <label>متن قوانین معامله:</label>
-                <textarea id="admin-rules" rows="4"></textarea>
-            </div>
-        </div>
-
-        <button class="btn-submit" style="background-color: var(--danger-color);" onclick="updateSettings()">💾 ثبت و به‌روزرسانی دائمی ۵ آیتم</button>
-
-        <hr style="border-color: var(--border-color); margin: 14px 0;">
-        <div class="card-title" style="color: var(--warning-color)">📋 لیست سفارشات باز</div>
-        <div id="open-orders-list">در حال بارگذاری...</div>
-    </div>
-
-    </div>
-            <script>
+    <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     const ADMIN_ID = 48460135;
-    const API_URL = "https://shokouhi61.pythonanywhere.com/get_settings";
+    const API_BASE = "https://shokouhi61.pythonanywhere.com";
 
     let settings = {
         base_rate: 730,
@@ -390,7 +311,7 @@
 
     async function fetchSettings() {
         try {
-            const res = await fetch(API_URL + "?t=" + new Date().getTime());
+            const res = await fetch(API_BASE + "/get_settings?t=" + new Date().getTime());
             if (res.ok) {
                 const data = await res.json();
                 if (data.settings) {
@@ -556,7 +477,7 @@
         isFileUploaded = false;
     }
 
-    function submitFinalOrder() {
+    async function submitFinalOrder() {
         const tradeType = document.getElementById('trade-type').value;
         const card = document.getElementById('bank-card').value;
         const account = document.getElementById('bank-account').value;
@@ -589,33 +510,45 @@
             bank_name: bankName
         };
 
-        document.getElementById('step-2').style.display = 'none';
-        document.getElementById('step-receipt').style.display = 'block';
+        try {
+            const res = await fetch(API_BASE + "/update_server_data", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
 
-        let receiptHtml = `
-            <div class="receipt-row"><span>کد پیگیری:</span><strong>${orderId}</strong></div>
-            <div class="receipt-row"><span>نام مشتری:</span><span>${orderDataStep1.name}</span></div>
-            <div class="receipt-row"><span>نوع معامله:</span><span>${orderDataStep1.trade_type}</span></div>
-            <div class="receipt-row"><span>مقدار درام:</span><span>${orderDataStep1.amount} AMD</span></div>
-            <div class="receipt-row"><span>مقدار تومان:</span><strong>${orderDataStep1.total_price}</strong></div>
-        `;
-        if (tradeType === 'buy') {
-            receiptHtml += `
-                <div class="receipt-row"><span>شماره کارت ارمنی:</span><span>${card}</span></div>
-                <div class="receipt-row"><span>نام بانک ارمنی:</span><span>${bankName}</span></div>
-            `;
-        } else {
-            receiptHtml += `
-                <div class="receipt-row"><span>شماره حساب:</span><span>${account}</span></div>
-                <div class="receipt-row"><span>شماره شبا:</span><span>IR${sheba}</span></div>
-            `;
+            if (res.ok) {
+                document.getElementById('step-2').style.display = 'none';
+                document.getElementById('step-receipt').style.display = 'block';
+
+                let receiptHtml = `
+                    <div class="receipt-row"><span>کد پیگیری:</span><strong>${orderId}</strong></div>
+                    <div class="receipt-row"><span>نام مشتری:</span><span>${orderDataStep1.name}</span></div>
+                    <div class="receipt-row"><span>نوع معامله:</span><span>${orderDataStep1.trade_type}</span></div>
+                    <div class="receipt-row"><span>مقدار درام:</span><span>${orderDataStep1.amount} AMD</span></div>
+                    <div class="receipt-row"><span>مقدار تومان:</span><strong>${orderDataStep1.total_price}</strong></div>
+                `;
+                if (tradeType === 'buy') {
+                    receiptHtml += `
+                        <div class="receipt-row"><span>شماره کارت ارمنی:</span><span>${card}</span></div>
+                        <div class="receipt-row"><span>نام بانک ارمنی:</span><span>${bankName}</span></div>
+                    `;
+                } else {
+                    receiptHtml += `
+                        <div class="receipt-row"><span>شماره حساب:</span><span>${account}</span></div>
+                        <div class="receipt-row"><span>شماره شبا:</span><span>IR${sheba}</span></div>
+                    `;
+                }
+                document.getElementById('receipt-details').innerHTML = receiptHtml;
+            } else {
+                tg.showAlert("خطا در ثبت سفارش روی سرور. لطفاً دوباره تلاش کنید.");
+            }
+        } catch (e) {
+            tg.showAlert("خطا در اتصال به سرور.");
         }
-        document.getElementById('receipt-details').innerHTML = receiptHtml;
-
-        tg.sendData(JSON.stringify(payload));
     }
 
-    function updateSettings() {
+    async function updateSettings() {
         const payload = {
             action: "update_settings",
             balance_toman: document.getElementById('admin-toman').value,
@@ -625,8 +558,22 @@
             sell_fee: document.getElementById('admin-sell-fee').value,
             rules: document.getElementById('admin-rules').value
         };
-        tg.sendData(JSON.stringify(payload));
-        tg.showAlert("تنظیمات با موفقیت ذخیره و برای همه کاربران اعمال شد.");
+
+        try {
+            const res = await fetch(API_BASE + "/update_server_data", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                tg.showAlert("تنظیمات با موفقیت ذخیره و اعمال شد.");
+                fetchSettings();
+            } else {
+                tg.showAlert("خطا در ذخیره تنظیمات روی سرور.");
+            }
+        } catch (e) {
+            tg.showAlert("خطا در اتصال به سرور.");
+        }
     }
 
     function renderOpenOrders(orders) {
@@ -642,20 +589,33 @@
                     <div><b>کد:</b> ${o.order_id} | <b>نام:</b> ${o.name}</div>
                     <div><b>نوع:</b> ${o.trade_type} | <b>مقدار تومان:</b> ${o.total_price}</div>
                     <div><b>موبایل/واتس‌اپ:</b> ${o.whatsapp || '-'}</div>
-                    <button style="background-color:var(--success-color); border:none; border-radius:6px; color:white; padding:6px; cursor:pointer; font-size:0.8rem; margin-top:6px; width:100%;" onclick="confirmOrder('${o.order_id}')">✅ تأیید سفارش و ارسال پیام به مشتری</button>
+                    <button style="background-color:var(--success-color); border:none; border-radius:6px; color:white; padding:6px; cursor:pointer; font-size:0.8rem; margin-top:6px; width:100%;" onclick="confirmOrder('${o.order_id}')">✅ تأیید سفارش</button>
                 </div>
             `;
         });
         container.innerHTML = html;
     }
 
-    function confirmOrder(orderId) {
+    async function confirmOrder(orderId) {
         const payload = {
             action: "confirm_order",
             order_id: orderId
         };
-        tg.sendData(JSON.stringify(payload));
-        tg.showAlert("دستور تأیید سفارش ارسال شد.");
+        try {
+            const res = await fetch(API_BASE + "/update_server_data", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                tg.showAlert("سفارش تأیید و از لیست حذف شد.");
+                fetchSettings();
+            } else {
+                tg.showAlert("خطا در تأیید سفارش.");
+            }
+        } catch (e) {
+            tg.showAlert("خطا در اتصال به سرور.");
+        }
     }
 
     fetchSettings();
