@@ -102,13 +102,13 @@
             outline: none;
             width: 100%;
             box-sizing: border-box;
-            direction: ltr;
-            text-align: left;
-        }
-
-        select, textarea, input[type="text"]#order-name {
             direction: rtl;
             text-align: right;
+        }
+
+        input[type="number"] {
+            direction: ltr;
+            text-align: left;
         }
 
         input:focus, select:focus, textarea:focus {
@@ -360,9 +360,8 @@
         <div id="open-orders-list">در حال بارگذاری...</div>
     </div>
 
-</div>
-
-<script>
+    </div>
+           <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
@@ -543,4 +542,108 @@
 
     function submitFinalOrder() {
         const card = document.getElementById('bank-card').value;
-        const accou
+        const account = document.getElementById('bank-account').value;
+        const tradeType = document.getElementById('trade-type').value;
+        const sheba = document.getElementById('bank-sheba').value;
+        const bankName = document.getElementById('bank-name').value;
+
+        if (!card || !account) {
+            tg.showAlert("لطفاً تمامی مشخصات بانکی را وارد کنید.");
+            return;
+        }
+
+        if (tradeType === 'sell' && !sheba) {
+            tg.showAlert("لطفاً شماره شبا را وارد کنید.");
+            return;
+        }
+
+        if (tradeType === 'buy' && !bankName) {
+            tg.showAlert("لطفاً نام بانک را وارد کنید.");
+            return;
+        }
+
+        if (!isFileUploaded) {
+            tg.showAlert("لطفاً تصویر فیش یا فایل PDF واریزی را آپلود نمایید.");
+            return;
+        }
+
+        const orderId = 'AMD-' + Math.floor(100000 + Math.random() * 900000);
+        const payload = {
+            action: "submit_order",
+            order_id: orderId,
+            ...orderDataStep1,
+            card_number: card,
+            account_number: account,
+            sheba_number: sheba,
+            bank_name: bankName
+        };
+
+        document.getElementById('step-2').style.display = 'none';
+        document.getElementById('step-receipt').style.display = 'block';
+
+        let receiptHtml = `
+            <div class="receipt-row"><span>کد پیگیری:</span><strong>${orderId}</strong></div>
+            <div class="receipt-row"><span>نام مشتری:</span><span>${orderDataStep1.name}</span></div>
+            <div class="receipt-row"><span>نوع معامله:</span><span>${orderDataStep1.trade_type}</span></div>
+            <div class="receipt-row"><span>مبلغ معامله:</span><span>${orderDataStep1.amount} AMD</span></div>
+            <div class="receipt-row"><span>مبلغ کل:</span><strong>${orderDataStep1.total_price}</strong></div>
+            <div class="receipt-row"><span>شماره کارت:</span><span>${card}</span></div>
+            <div class="receipt-row"><span>شماره حساب:</span><span>${account}</span></div>
+        `;
+        if (tradeType === 'sell') {
+            receiptHtml += `<div class="receipt-row"><span>شماره شبا:</span><span>IR${sheba}</span></div>`;
+        } else {
+            receiptHtml += `<div class="receipt-row"><span>نام بانک:</span><span>${bankName}</span></div>`;
+        }
+        document.getElementById('receipt-details').innerHTML = receiptHtml;
+
+        tg.sendData(JSON.stringify(payload));
+    }
+
+    function updateSettings() {
+        const payload = {
+            action: "update_settings",
+            balance_toman: document.getElementById('admin-toman').value,
+            balance_dram: document.getElementById('admin-dram').value,
+            base_rate: document.getElementById('admin-base-rate').value,
+            buy_fee: document.getElementById('admin-buy-fee').value,
+            sell_fee: document.getElementById('admin-sell-fee').value,
+            rules: document.getElementById('admin-rules').value
+        };
+        tg.sendData(JSON.stringify(payload));
+    }
+
+    function renderOpenOrders(orders) {
+        const container = document.getElementById('open-orders-list');
+        if (!orders || orders.length === 0) {
+            container.innerHTML = "<p style='color:var(--text-muted); font-size:0.8rem;'>سفارش باز پیدا نشد.</p>";
+            return;
+        }
+        let html = "";
+        orders.forEach(o => {
+            html += `
+                <div class="order-card-item">
+                    <div><b>کد:</b> ${o.order_id} | <b>نام:</b> ${o.name}</div>
+                    <div><b>نوع:</b> ${o.trade_type} | <b>مبلغ:</b> ${o.total_price}</div>
+                    <div><b>کارت:</b> ${o.card_number || '-'} | <b>حساب:</b> ${o.account_number || '-'}</div>
+                    <button style="background-color:var(--success-color); border:none; border-radius:6px; color:white; padding:6px; cursor:pointer; font-size:0.8rem; margin-top:6px; width:100%;" onclick="confirmOrder('${o.order_id}')">✅ تأیید سفارش و ارسال پیام به مشتری</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function confirmOrder(orderId) {
+        const payload = {
+            action: "confirm_order",
+            order_id: orderId
+        };
+        tg.sendData(JSON.stringify(payload));
+    }
+
+    fetchSettings();
+</script>
+
+</body>
+</html>
+
