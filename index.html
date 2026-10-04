@@ -124,8 +124,9 @@
             color: #856404;
             padding: 10px;
             border-radius: 8px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             margin-bottom: 12px;
+            line-height: 1.6;
         }
 
         .admin-panel {
@@ -232,11 +233,11 @@
         </div>
         <div class="form-group">
             <label>نام و نام خانوادگی:</label>
-            <input type="text" id="order-name" placeholder="نام خود را وارد کنید">
+            <input type="text" id="order-name">
         </div>
         <div class="form-group">
             <label>شماره تماس / واتس‌اپ:</label>
-            <input type="text" id="order-whatsapp" placeholder="مثال: 09123456789">
+            <input type="text" id="order-whatsapp">
         </div>
         <button onclick="goToStep2()">مرحله بعدی و اطلاعات بانکی</button>
     </div>
@@ -244,25 +245,38 @@
     <!-- فرم ثبت سفارش - مرحله ۲ -->
     <div class="card" id="step-2" style="display: none;">
         <h2>اطلاعات بانکی و آپلود فیش</h2>
-        <div class="rules-box" id="bank-instruction-box" style="background:#e8f4fd; border-color:#b8daff; color:#004085;">
-            لطفاً اطلاعات حساب مقصد را وارد کرده و تصویر فیش واریزی را آپلود نمایید.
+        <div class="rules-box" id="bank-instruction-box" style="background:#e8f4fd; border-color:#b8daff; color:#004085;"></div>
+
+        <!-- فیلدهای مخصوص خرید درام (کاربر باید کارت ارمنی و نام بانک خودش را وارد کند) -->
+        <div id="fields-buy-group">
+            <div class="form-group">
+                <label>شماره کارت بانکی ارمنی:</label>
+                <input type="text" id="bank-card" placeholder="">
+            </div>
+            <div class="form-group">
+                <label>نام بانک ارمنی:</label>
+                <input type="text" id="bank-name" placeholder="">
+            </div>
         </div>
 
-        <div class="form-group" id="group-card">
-            <label>شماره کارت ارمنی (جهت دریافت درام):</label>
-            <input type="text" id="bank-card" placeholder="16 رقمی کارت ارمنی">
-        </div>
-        <div class="form-group" id="group-account" style="display: none;">
-            <label>شماره حساب ایرانی:</label>
-            <input type="text" id="bank-account" placeholder="شماره حساب">
-        </div>
-        <div class="form-group" id="group-sheba" style="display: none;">
-            <label>شماره شبا (بدون IR):</label>
-            <input type="text" id="bank-sheba" placeholder="24 رقم شبا">
-        </div>
-        <div class="form-group" id="group-bank-name">
-            <label>نام بانک مقصد:</label>
-            <input type="text" id="bank-name" placeholder="مثال: Inecobank یا ملی">
+        <!-- فیلدهای مخصوص فروش درام (کاربر باید اطلاعات کارت، حساب، شبا و نام بانک ایرانی خودش را وارد کند تا تومان دریافت کند) -->
+        <div id="fields-sell-group" style="display: none;">
+            <div class="form-group">
+                <label>شماره کارت بانکی ایرانی:</label>
+                <input type="text" id="user-iran-card" placeholder="">
+            </div>
+            <div class="form-group">
+                <label>شماره حساب بانکی ایرانی:</label>
+                <input type="text" id="user-iran-account" placeholder="">
+            </div>
+            <div class="form-group">
+                <label>شماره شبا (بدون IR):</label>
+                <input type="text" id="user-iran-sheba" placeholder="">
+            </div>
+            <div class="form-group">
+                <label>نام بانک ایرانی:</label>
+                <input type="text" id="user-iran-bank" placeholder="">
+            </div>
         </div>
 
         <div class="form-group">
@@ -284,8 +298,8 @@
         <div id="receipt-details" style="background: #f8f9fa; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; text-align: right; margin-bottom: 12px; font-size: 0.85rem;"></div>
         <button onclick="location.reload()">ثبت سفارش جدید</button>
     </div>
-</div>
-<script>
+            </div>
+            <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
@@ -309,13 +323,20 @@
         document.getElementById('admin-panel').style.display = 'block';
     }
 
+    // تابع ایمن دریافت نرخ بدون ایجاد خطای سرور
     async function fetchLiveRate() {
         try {
-            const res = await fetch("https://open.er-api.com/v6/latest/USD");
+            // استفاده از یک ای‌پیک عمومی پایدار و امن
+            const res = await fetch("https://open.er-api.com/v6/latest/USD", { cache: "no-store" });
             if (res.ok) {
                 const data = await res.json();
+                if (data && data.rates && data.rates.IRR) {
+                    // اگر نیاز به تنظیم دینامیک بود انجام می‌شود، در غیر این صورت روی آخرین نرخ معتبر می‌ماند
+                }
             }
-        } catch (e) {}
+        } catch (e) {
+            // خطای شبکه نادیده گرفته می‌شود تا آخرین نرخ معتبر حفظ شود
+        }
     }
 
     async function fetchSettings() {
@@ -371,17 +392,21 @@
     function onTradeTypeChange() {
         const type = document.getElementById('trade-type').value;
         if (type === 'buy') {
-            document.getElementById('group-card').style.display = 'block';
-            document.getElementById('group-account').style.display = 'none';
-            document.getElementById('group-sheba').style.display = 'none';
-            document.getElementById('group-bank-name').style.display = 'block';
-            document.getElementById('bank-instruction-box').innerHTML = "لطفاً مبلغ ریالی را به شماره کارت / حساب صرافی واریز نمایید و مشخصات کارت ارمنی خود را جهت دریافت درام وارد کنید.";
+            document.getElementById('fields-buy-group').style.display = 'block';
+            document.getElementById('fields-sell-group').style.display = 'none';
+            document.getElementById('bank-instruction-box').innerHTML = 
+                "لطفاً مبلغ ریالی را به مشخصات زیر واریز نمایید و پس از دریافت درام، فیش آن را بارگذاری کنید:<br>" +
+                "<b>بانک ملت</b><br>" +
+                "شماره کارت: <code>11</code><br>" +
+                "شماره حساب: <code>1</code><br>" +
+                "شماره شبا: <code>IR111</code>";
         } else {
-            document.getElementById('group-card').style.display = 'none';
-            document.getElementById('group-account').style.display = 'block';
-            document.getElementById('group-sheba').style.display = 'block';
-            document.getElementById('group-bank-name').style.display = 'none';
-            document.getElementById('bank-instruction-box').innerHTML = "لطفاً درام مورد نظر را به حساب صرافی در ارمنستان واریز نمایید و شماره شبا / حساب ایرانی خود را جهت دریافت ریال وارد کنید.";
+            document.getElementById('fields-buy-group').style.display = 'none';
+            document.getElementById('fields-sell-group').style.display = 'block';
+            document.getElementById('bank-instruction-box').innerHTML = 
+                "لطفاً درام مورد نظر را به مشخصات زیر واریز نمایید و مشخصات کارت/حساب/شبای ایرانی خود را وارد کرده و فیش بفرستید:<br>" +
+                "<b>بانک FastBank</b><br>" +
+                "شماره کارت: <code>2</code>";
         }
         calculateOrder();
     }
@@ -422,7 +447,7 @@
         }
 
         if (!name || !whatsapp) {
-            tg.showAlert("لطفاً نام و شماره تماس خود را وارد کنید.");
+            tg.showAlert("لطفاً نام و نام خانوادگی و شماره تماس را وارد کنید.");
             return;
         }
 
@@ -436,6 +461,7 @@
 
         document.getElementById('step-1').style.display = 'none';
         document.getElementById('step-2').style.display = 'block';
+        onTradeTypeChange();
     }
 
     function backToStep1() {
@@ -486,18 +512,28 @@
 
     async function submitFinalOrder() {
         const tradeType = document.getElementById('trade-type').value;
-        const card = document.getElementById('bank-card').value;
-        const account = document.getElementById('bank-account').value;
-        const sheba = document.getElementById('bank-sheba').value;
-        const bankName = document.getElementById('bank-name').value;
+        const card = document.getElementById('bank-card').value.trim();
+        const bankName = document.getElementById('bank-name').value.trim();
 
-        if (tradeType === 'buy' && (!card || !bankName)) {
-            tg.showAlert("لطفاً شماره کارت و نام بانک ارمنی را وارد کنید.");
-            return;
+        const iranCard = document.getElementById('user-iran-card').value.trim();
+        const iranAccount = document.getElementById('user-iran-account').value.trim();
+        const iranSheba = document.getElementById('user-iran-sheba').value.trim();
+        const iranBank = document.getElementById('user-iran-bank').value.trim();
+
+        if (tradeType === 'buy') {
+            if (!card || !bankName) {
+                tg.showAlert("لطفاً شماره کارت ارمنی و نام بانک را وارد کنید.");
+                return;
+            }
+        } else {
+            if (!iranCard || !iranAccount || !iranSheba || !iranBank) {
+                tg.showAlert("لطفاً شماره کارت، شماره حساب، شماره شبا (بدون IR) و نام بانک ایرانی را کامل وارد کنید.");
+                return;
+            }
         }
 
-        if (tradeType === 'sell' && (!account || !sheba)) {
-            tg.showAlert("لطفاً شماره حساب و شبا را وارد کنید.");
+        if (!isFileUploaded) {
+            tg.showAlert("لطفاً فیش واریزی را آپلود کنید.");
             return;
         }
 
@@ -506,10 +542,10 @@
             action: "submit_order",
             order_id: orderId,
             ...orderDataStep1,
-            card_number: card || "-",
-            account_number: account || "-",
-            sheba_number: sheba || "-",
-            bank_name: bankName || "-"
+            card_number: tradeType === 'buy' ? card : iranCard,
+            account_number: tradeType === 'buy' ? "-" : iranAccount,
+            sheba_number: tradeType === 'buy' ? "-" : iranSheba,
+            bank_name: tradeType === 'buy' ? bankName : iranBank
         };
 
         try {
@@ -532,13 +568,15 @@
                 `;
                 if (tradeType === 'buy') {
                     receiptHtml += `
-                        <div class="receipt-row"><span>شماره کارت ارمنی:</span><span>${card}</span></div>
-                        <div class="receipt-row"><span>نام بانک ارمنی:</span><span>${bankName}</span></div>
+                        <div class="receipt-row"><span>کارت ارمنی:</span><span>${card}</span></div>
+                        <div class="receipt-row"><span>بانک ارمنی:</span><span>${bankName}</span></div>
                     `;
                 } else {
                     receiptHtml += `
-                        <div class="receipt-row"><span>شماره حساب:</span><span>${account}</span></div>
-                        <div class="receipt-row"><span>شماره شبا:</span><span>IR${sheba}</span></div>
+                        <div class="receipt-row"><span>کارت ایرانی:</span><span>${iranCard}</span></div>
+                        <div class="receipt-row"><span>حساب ایرانی:</span><span>${iranAccount}</span></div>
+                        <div class="receipt-row"><span>شبا:</span><span>IR${iranSheba}</span></div>
+                        <div class="receipt-row"><span>بانک ایرانی:</span><span>${iranBank}</span></div>
                     `;
                 }
                 document.getElementById('receipt-details').innerHTML = receiptHtml;
