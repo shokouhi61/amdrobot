@@ -191,7 +191,7 @@
             display: none;
         }
 
-        #step-2, #step-receipt, #admin-panel {
+        #step-2, #step-receipt {
             display: none;
         }
 
@@ -243,11 +243,11 @@
         <div class="rates-grid">
             <div class="grid-box" style="border-color: rgba(16, 185, 129, 0.3);">
                 <div class="box-label">نرخ خرید صرافی از شما</div>
-                <div class="box-val" id="disp-buy-rate" style="color: var(--success-color);">648 Toman</div>
+                <div class="box-val" id="disp-buy-rate" style="color: var(--success-color);">657 Toman</div>
             </div>
             <div class="grid-box" style="border-color: rgba(2, 132, 199, 0.3);">
                 <div class="box-label">نرخ فروش صرافی به شما</div>
-                <div class="box-val" id="disp-sell-rate" style="color: var(--accent-color);">792 Toman</div>
+                <div class="box-val" id="disp-sell-rate" style="color: var(--accent-color);">803 Toman</div>
             </div>
         </div>
     </div>
@@ -266,7 +266,7 @@
 
         <div class="form-group">
             <label>مبلغ معامله (به درام):</label>
-            <input type="number" id="order-amount" placeholder="50000" oninput="calculateOrder()">
+            <input type="number" id="order-amount" value="50000" placeholder="50000" oninput="calculateOrder()">
             <div class="quick-btn-container">
                 <div class="quick-btn" onclick="setQuickAmount(5000)">5,000</div>
                 <div class="quick-btn" onclick="setQuickAmount(10000)">10,000</div>
@@ -283,7 +283,7 @@
         </div>
 
         <div class="form-group">
-            <label>شماره واتس‌اپ / تماس:</label>
+            <label>شماره واتس‌‌اپ / تماس:</label>
             <input type="number" id="order-whatsapp" placeholder="09123456789">
         </div>
 
@@ -298,7 +298,7 @@
     <!-- بخش قوانین و مقررات -->
     <div class="card">
         <div class="card-title" style="color: var(--warning-color)">📜 قوانین و مقررات معامله</div>
-        <div id="disp-rules" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; whitespace: pre-line;">
+        <div id="disp-rules" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; white-space: pre-line;">
             ۱. تمامی تسویه‌ها پس از تأیید فیش انجام می‌شود.
             ۲. مسئولیت صحت شماره کارت و حساب بر عهده مشتری است.
         </div>
@@ -318,12 +318,12 @@
             <input type="number" id="bank-account" placeholder="شماره حساب بانکی">
         </div>
 
-        <div class="form-group" id="group-sheba">
+        <div class="form-group" id="group-sheba" style="display: none;">
             <label>شماره شبا بدون IR (اجباری):</label>
             <input type="number" id="bank-sheba" placeholder="980120000000000000000001">
         </div>
 
-        <div class="form-group" id="group-bank-name" style="display: none;">
+        <div class="form-group" id="group-bank-name">
             <label>نام بانک (اجباری):</label>
             <input type="text" id="bank-name" placeholder="مثلاً بانک ملی / ملت">
         </div>
@@ -353,22 +353,22 @@
     <a href="https://t.me/shokouhi61" target="_blank" class="btn-submit btn-support">💬 پشتیبانی آنلاین صرافی (ارتباط مستقیم)</a>
 
     <!-- پنل مدیریت (مخصوص ادمین) -->
-    <div class="card" id="admin-panel">
-        <div class="card-title" style="color: var(--danger-color)">⚙️ ویرایش دائمی آیتم‌های اصلی صرافی</div>
+    <div class="card" id="admin-panel" style="display: block;">
+        <div class="card-title" style="color: var(--danger-color)">⚙️ ویرایش دائمی آیتم‌های اصلی صرافی (مدیریت)</div>
         
         <div class="admin-section-box">
             <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">1. تنظیمات مالی و کارمزدها</div>
             <div class="form-group">
                 <label>نرخ پایه درام (تومان):</label>
-                <input type="number" id="admin-base-rate">
+                <input type="number" id="admin-base-rate" value="730">
             </div>
             <div class="form-group">
                 <label>درصد کارمزد خرید (%):</label>
-                <input type="number" id="admin-buy-fee">
+                <input type="number" id="admin-buy-fee" value="10">
             </div>
             <div class="form-group">
                 <label>درصد کارمزد فروش (%):</label>
-                <input type="number" id="admin-sell-fee">
+                <input type="number" id="admin-sell-fee" value="10">
             </div>
         </div>
 
@@ -376,11 +376,11 @@
             <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">2. موجودی‌های صرافی</div>
             <div class="form-group">
                 <label>موجودی تومانی:</label>
-                <input type="text" id="admin-toman">
+                <input type="text" id="admin-toman" value="7,000,000,000 تومان">
             </div>
             <div class="form-group">
                 <label>موجودی درامی:</label>
-                <input type="text" id="admin-dram">
+                <input type="text" id="admin-dram" value="10,000,000 درام">
             </div>
         </div>
 
@@ -388,7 +388,7 @@
             <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">3. قوانین و مقررات عمومی</div>
             <div class="form-group">
                 <label>متن قوانین معامله:</label>
-                <textarea id="admin-rules" rows="4" placeholder="قوانین معامله را اینجا بنویسید..."></textarea>
+                <textarea id="admin-rules" rows="4"></textarea>
             </div>
         </div>
 
@@ -409,7 +409,7 @@
     const API_URL = "https://shokouhi61.pythonanywhere.com/get_settings";
 
     let settings = {
-        base_rate: 720,
+        base_rate: 730,
         buy_fee: 10,
         sell_fee: 10,
         balance_toman: "7,000,000,000 تومان",
@@ -420,8 +420,9 @@
     let orderDataStep1 = {};
     let isFileUploaded = false;
 
+    // بررسی دسترسی ادمین
     const user = tg.initDataUnsafe?.user;
-    if (user && user.id === ADMIN_ID) {
+    if (user && String(user.id) === String(ADMIN_ID)) {
         document.getElementById('admin-panel').style.display = 'block';
     }
 
@@ -434,7 +435,7 @@
                     settings = data.settings;
                     applySettingsUI();
                 }
-                if (data.open_orders && user && user.id === ADMIN_ID) {
+                if (data.open_orders) {
                     renderOpenOrders(data.open_orders);
                 }
             }
@@ -450,7 +451,7 @@
             document.getElementById('disp-rules').innerText = settings.rules;
         }
 
-        const base = parseFloat(settings.base_rate) || 0;
+        const base = parseFloat(settings.base_rate) || 730;
         const buyFee = parseFloat(settings.buy_fee) || 0;
         const sellFee = parseFloat(settings.sell_fee) || 0;
 
@@ -490,7 +491,7 @@
     function calculateOrder() {
         const tradeType = document.getElementById('trade-type').value;
         const amount = parseFloat(document.getElementById('order-amount').value) || 0;
-        const baseRate = parseFloat(settings.base_rate) || 0;
+        const baseRate = parseFloat(settings.base_rate) || 730;
         const buyFee = parseFloat(settings.buy_fee) || 0;
         const sellFee = parseFloat(settings.sell_fee) || 0;
 
@@ -502,7 +503,7 @@
         }
 
         const totalPrice = amount * effectiveRate;
-        document.getElementById('calc-total-price').innerText = Math.round(totalPrice) + ' Toman';
+        document.getElementById('calc-total-price').innerText = Math.round(totalPrice).toLocaleString('en-US') + ' Toman';
     }
 
     function goToStep2() {
@@ -550,5 +551,4 @@
 
         if (file.type.startsWith('image/')) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('file-preview').src = e.targe
+            
