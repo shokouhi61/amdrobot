@@ -199,30 +199,29 @@
     </style>
 </head>
 <body>
-
-<div class="container">
+    <div class="container">
 
     <div class="card">
         <div class="card-title">💵 نرخ‌ها و موجودی لحظه‌ای صرافی</div>
         <div class="balance-grid">
             <div class="grid-box">
                 <div class="box-label">موجودی تومان</div>
-                <div class="box-val" id="disp-toman">7,000,000,000 تومان</div>
+                <div class="box-val" id="disp-toman">--</div>
             </div>
             <div class="grid-box">
                 <div class="box-label">موجودی درام</div>
-                <div class="box-val" id="disp-dram">10,000,000 درام</div>
+                <div class="box-val" id="disp-dram">--</div>
             </div>
         </div>
 
         <div class="rates-grid">
             <div class="grid-box" style="border-color: rgba(16, 185, 129, 0.3);">
                 <div class="box-label">نرخ خرید صرافی از شما</div>
-                <div class="box-val" id="disp-buy-rate" style="color: var(--success-color);">657 Toman</div>
+                <div class="box-val" id="disp-buy-rate" style="color: var(--success-color);">--</div>
             </div>
             <div class="grid-box" style="border-color: rgba(2, 132, 199, 0.3);">
                 <div class="box-label">نرخ فروش صرافی به شما</div>
-                <div class="box-val" id="disp-sell-rate" style="color: var(--accent-color);">803 Toman</div>
+                <div class="box-val" id="disp-sell-rate" style="color: var(--accent-color);">--</div>
             </div>
         </div>
     </div>
@@ -239,7 +238,7 @@
         </div>
 
         <div class="form-group">
-            <label>مبلغ معامله (به درام):</label>
+            <label>مقدار درام:</label>
             <input type="number" id="order-amount" placeholder="مثلاً 50000" oninput="calculateOrder()">
         </div>
 
@@ -254,7 +253,7 @@
         </div>
 
         <div class="summary-box">
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">مبلغ نهایی قابل تسویه:</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">مقدار تومان:</div>
             <strong id="calc-total-price" style="color: var(--success-color); font-size: 1.3rem;">0 Toman</strong>
         </div>
 
@@ -264,32 +263,35 @@
     <div class="card">
         <div class="card-title" style="color: var(--warning-color)">📜 قوانین و مقررات معامله</div>
         <div id="disp-rules" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; white-space: pre-line;">
-            ۱. تمامی تسویه‌ها پس از تأیید فیش انجام می‌شود.
-            ۲. مسئولیت صحت شماره کارت و حساب بر عهده مشتری است.
+            بارگذاری قوانین...
         </div>
     </div>
 
     <div class="card" id="step-2">
         <div class="card-title">💳 مشخصات بانکی و فیش واریزی (گام ۲ از ۲)</div>
 
-        <div class="form-group">
-            <label>شماره کارت بانکی (اجباری):</label>
-            <input type="number" id="bank-card" placeholder="6037990000000000">
+        <div id="bank-instruction-box" style="background: rgba(2, 132, 199, 0.1); border: 1px solid var(--accent-color); padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.8rem; line-height: 1.6;">
+            لطفاً میزان پرداختی خود را به حساب مربوطه به نام صرافی آنلاین ارمنستان واریز نمایید.
         </div>
 
-        <div class="form-group">
-            <label>شماره حساب (اجباری):</label>
-            <input type="number" id="bank-account" placeholder="شماره حساب بانکی">
+        <div class="form-group" id="group-card">
+            <label>شماره کارت بانکی:</label>
+            <input type="number" id="bank-card" placeholder="شماره کارت">
+        </div>
+
+        <div class="form-group" id="group-account" style="display: none;">
+            <label>شماره حساب بانکی:</label>
+            <input type="number" id="bank-account" placeholder="شماره حساب">
         </div>
 
         <div class="form-group" id="group-sheba" style="display: none;">
-            <label>شماره شبا بدون IR (اجباری):</label>
-            <input type="number" id="bank-sheba" placeholder="980120000000000000000001">
+            <label>شماره شبا بدون IR:</label>
+            <input type="number" id="bank-sheba" placeholder="شماره شبا">
         </div>
 
         <div class="form-group" id="group-bank-name">
-            <label>نام بانک (اجباری):</label>
-            <input type="text" id="bank-name" placeholder="مثلاً بانک ملی / ملت">
+            <label>نام بانک:</label>
+            <input type="text" id="bank-name" placeholder="مثلاً Ameriabank / Evocabank / ACBA">
         </div>
 
         <div class="form-group">
@@ -361,7 +363,7 @@
     </div>
 
     </div>
-           <script>
+            <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
@@ -374,9 +376,10 @@
         sell_fee: 10,
         balance_toman: "7,000,000,000 تومان",
         balance_dram: "10,000,000 درام",
-        rules: "۱. تمامی تسویه‌ها پس از تأیید فیش انجام می‌شود.\n۲. مسئولیت صحت شماره کارت و حساب بر عهده مشتری است."
+        rules: "۱. تمامی تسویه‌ها پس از تأیید فیش انجام می‌شود."
     };
 
+    let lastValidBaseRate = 730;
     let orderDataStep1 = {};
     let isFileUploaded = false;
 
@@ -392,13 +395,20 @@
                 const data = await res.json();
                 if (data.settings) {
                     settings = data.settings;
+                    if (settings.base_rate && !isNaN(settings.base_rate)) {
+                        lastValidBaseRate = parseFloat(settings.base_rate);
+                    }
                     applySettingsUI();
                 }
-                if (data.open_orders && user && String(user.id) === String(ADMIN_ID)) {
+                if (data.open_orders) {
                     renderOpenOrders(data.open_orders);
                 }
+            } else {
+                settings.base_rate = lastValidBaseRate;
+                applySettingsUI();
             }
         } catch (e) {
+            settings.base_rate = lastValidBaseRate;
             applySettingsUI();
         }
     }
@@ -410,7 +420,7 @@
             document.getElementById('disp-rules').innerText = settings.rules;
         }
 
-        const base = parseFloat(settings.base_rate) || 730;
+        const base = parseFloat(settings.base_rate) || lastValidBaseRate;
         const buyFee = parseFloat(settings.buy_fee) || 0;
         const sellFee = parseFloat(settings.sell_fee) || 0;
 
@@ -422,7 +432,7 @@
 
         document.getElementById('admin-toman').value = settings.balance_toman || "";
         document.getElementById('admin-dram').value = settings.balance_dram || "";
-        document.getElementById('admin-base-rate').value = settings.base_rate || 730;
+        document.getElementById('admin-base-rate').value = base;
         document.getElementById('admin-buy-fee').value = settings.buy_fee || 10;
         document.getElementById('admin-sell-fee').value = settings.sell_fee || 10;
         document.getElementById('admin-rules').value = settings.rules || "";
@@ -433,11 +443,17 @@
     function onTradeTypeChange() {
         const type = document.getElementById('trade-type').value;
         if (type === 'buy') {
+            document.getElementById('group-card').style.display = 'block';
+            document.getElementById('group-account').style.display = 'none';
             document.getElementById('group-sheba').style.display = 'none';
-            document.getElementById('group-bank-name').style.display = 'flex';
+            document.getElementById('group-bank-name').style.display = 'block';
+            document.getElementById('bank-instruction-box').innerHTML = "لطفاً مبلغ ریالی را به شماره کارت / حساب صرافی واریز نمایید و مشخصات کارت ارمنی خود را جهت دریافت درام وارد کنید.";
         } else {
-            document.getElementById('group-sheba').style.display = 'flex';
+            document.getElementById('group-card').style.display = 'none';
+            document.getElementById('group-account').style.display = 'block';
+            document.getElementById('group-sheba').style.display = 'block';
             document.getElementById('group-bank-name').style.display = 'none';
+            document.getElementById('bank-instruction-box').innerHTML = "لطفاً درام مورد نظر را به حساب صرافی در ارمنستان واریز نمایید و شماره شبا / حساب ایرانی خود را جهت دریافت ریال وارد کنید.";
         }
         calculateOrder();
     }
@@ -447,7 +463,7 @@
         const rawAmount = document.getElementById('order-amount').value;
         const amount = parseFloat(rawAmount) || 0;
         
-        const baseRate = parseFloat(settings.base_rate) || 730;
+        const baseRate = parseFloat(settings.base_rate) || lastValidBaseRate;
         const buyFee = parseFloat(settings.buy_fee) || 0;
         const sellFee = parseFloat(settings.sell_fee) || 0;
 
@@ -473,7 +489,7 @@
         const whatsapp = document.getElementById('order-whatsapp').value.trim();
 
         if (amount <= 0) {
-            tg.showAlert("لطفاً مبلغ معامله به درام را وارد کنید.");
+            tg.showAlert("لطفاً مقدار درام را وارد کنید.");
             return;
         }
 
@@ -541,24 +557,19 @@
     }
 
     function submitFinalOrder() {
+        const tradeType = document.getElementById('trade-type').value;
         const card = document.getElementById('bank-card').value;
         const account = document.getElementById('bank-account').value;
-        const tradeType = document.getElementById('trade-type').value;
         const sheba = document.getElementById('bank-sheba').value;
         const bankName = document.getElementById('bank-name').value;
 
-        if (!card || !account) {
-            tg.showAlert("لطفاً تمامی مشخصات بانکی را وارد کنید.");
+        if (tradeType === 'buy' && (!card || !bankName)) {
+            tg.showAlert("لطفاً شماره کارت و نام بانک ارمنی را وارد کنید.");
             return;
         }
 
-        if (tradeType === 'sell' && !sheba) {
-            tg.showAlert("لطفاً شماره شبا را وارد کنید.");
-            return;
-        }
-
-        if (tradeType === 'buy' && !bankName) {
-            tg.showAlert("لطفاً نام بانک را وارد کنید.");
+        if (tradeType === 'sell' && (!account || !sheba)) {
+            tg.showAlert("لطفاً شماره حساب و شبا را وارد کنید.");
             return;
         }
 
@@ -585,15 +596,19 @@
             <div class="receipt-row"><span>کد پیگیری:</span><strong>${orderId}</strong></div>
             <div class="receipt-row"><span>نام مشتری:</span><span>${orderDataStep1.name}</span></div>
             <div class="receipt-row"><span>نوع معامله:</span><span>${orderDataStep1.trade_type}</span></div>
-            <div class="receipt-row"><span>مبلغ معامله:</span><span>${orderDataStep1.amount} AMD</span></div>
-            <div class="receipt-row"><span>مبلغ کل:</span><strong>${orderDataStep1.total_price}</strong></div>
-            <div class="receipt-row"><span>شماره کارت:</span><span>${card}</span></div>
-            <div class="receipt-row"><span>شماره حساب:</span><span>${account}</span></div>
+            <div class="receipt-row"><span>مقدار درام:</span><span>${orderDataStep1.amount} AMD</span></div>
+            <div class="receipt-row"><span>مقدار تومان:</span><strong>${orderDataStep1.total_price}</strong></div>
         `;
-        if (tradeType === 'sell') {
-            receiptHtml += `<div class="receipt-row"><span>شماره شبا:</span><span>IR${sheba}</span></div>`;
+        if (tradeType === 'buy') {
+            receiptHtml += `
+                <div class="receipt-row"><span>شماره کارت ارمنی:</span><span>${card}</span></div>
+                <div class="receipt-row"><span>نام بانک ارمنی:</span><span>${bankName}</span></div>
+            `;
         } else {
-            receiptHtml += `<div class="receipt-row"><span>نام بانک:</span><span>${bankName}</span></div>`;
+            receiptHtml += `
+                <div class="receipt-row"><span>شماره حساب:</span><span>${account}</span></div>
+                <div class="receipt-row"><span>شماره شبا:</span><span>IR${sheba}</span></div>
+            `;
         }
         document.getElementById('receipt-details').innerHTML = receiptHtml;
 
@@ -611,6 +626,7 @@
             rules: document.getElementById('admin-rules').value
         };
         tg.sendData(JSON.stringify(payload));
+        tg.showAlert("تنظیمات با موفقیت ذخیره و برای همه کاربران اعمال شد.");
     }
 
     function renderOpenOrders(orders) {
@@ -624,8 +640,8 @@
             html += `
                 <div class="order-card-item">
                     <div><b>کد:</b> ${o.order_id} | <b>نام:</b> ${o.name}</div>
-                    <div><b>نوع:</b> ${o.trade_type} | <b>مبلغ:</b> ${o.total_price}</div>
-                    <div><b>کارت:</b> ${o.card_number || '-'} | <b>حساب:</b> ${o.account_number || '-'}</div>
+                    <div><b>نوع:</b> ${o.trade_type} | <b>مقدار تومان:</b> ${o.total_price}</div>
+                    <div><b>موبایل/واتس‌اپ:</b> ${o.whatsapp || '-'}</div>
                     <button style="background-color:var(--success-color); border:none; border-radius:6px; color:white; padding:6px; cursor:pointer; font-size:0.8rem; margin-top:6px; width:100%;" onclick="confirmOrder('${o.order_id}')">✅ تأیید سفارش و ارسال پیام به مشتری</button>
                 </div>
             `;
@@ -639,6 +655,7 @@
             order_id: orderId
         };
         tg.sendData(JSON.stringify(payload));
+        tg.showAlert("دستور تأیید سفارش ارسال شد.");
     }
 
     fetchSettings();
@@ -646,4 +663,3 @@
 
 </body>
 </html>
-
