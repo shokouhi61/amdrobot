@@ -115,7 +115,7 @@
             color: var(--text-muted);
         }
 
-        input, select {
+        input, select, textarea {
             background-color: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -129,12 +129,12 @@
             text-align: left;
         }
 
-        select, input[type="text"]#order-name {
+        select, textarea, input[type="text"]#order-name {
             direction: rtl;
             text-align: right;
         }
 
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             border-color: var(--accent-color);
         }
 
@@ -211,6 +211,14 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-size: 0.85rem;
         }
+
+        .admin-section-box {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
     </style>
 </head>
 <body>
@@ -224,22 +232,22 @@
         <div class="balance-grid">
             <div class="grid-box">
                 <div class="box-label">موجودی تومان</div>
-                <div class="box-val" id="disp-toman">در حال دریافت...</div>
+                <div class="box-val" id="disp-toman">7,000,000,000 تومان</div>
             </div>
             <div class="grid-box">
                 <div class="box-label">موجودی درام</div>
-                <div class="box-val" id="disp-dram">در حال دریافت...</div>
+                <div class="box-val" id="disp-dram">10,000,000 درام</div>
             </div>
         </div>
 
         <div class="rates-grid">
             <div class="grid-box" style="border-color: rgba(16, 185, 129, 0.3);">
                 <div class="box-label">نرخ خرید صرافی از شما</div>
-                <div class="box-val" id="disp-buy-rate" style="color: var(--success-color);">- تومان</div>
+                <div class="box-val" id="disp-buy-rate" style="color: var(--success-color);">648 Toman</div>
             </div>
             <div class="grid-box" style="border-color: rgba(2, 132, 199, 0.3);">
                 <div class="box-label">نرخ فروش صرافی به شما</div>
-                <div class="box-val" id="disp-sell-rate" style="color: var(--accent-color);">- تومان</div>
+                <div class="box-val" id="disp-sell-rate" style="color: var(--accent-color);">792 Toman</div>
             </div>
         </div>
     </div>
@@ -287,6 +295,15 @@
         <button class="btn-submit" onclick="goToStep2()">ادامه و تکمیل اطلاعات بانکی ➔</button>
     </div>
 
+    <!-- بخش قوانین و مقررات -->
+    <div class="card">
+        <div class="card-title" style="color: var(--warning-color)">📜 قوانین و مقررات معامله</div>
+        <div id="disp-rules" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; whitespace: pre-line;">
+            ۱. تمامی تسویه‌ها پس از تأیید فیش انجام می‌شود.
+            ۲. مسئولیت صحت شماره کارت و حساب بر عهده مشتری است.
+        </div>
+    </div>
+
     <!-- گام دوم سفارش -->
     <div class="card" id="step-2">
         <div class="card-title">💳 مشخصات بانکی و فیش واریزی (گام ۲ از ۲)</div>
@@ -326,9 +343,7 @@
     <!-- مرحله نمایش رسید نهایی -->
     <div class="card" id="step-receipt">
         <div class="card-title" style="color: var(--success-color)">🧾 رسید ثبت سفارش</div>
-        
         <div id="receipt-details"></div>
-
         <div style="background-color: rgba(16, 185, 129, 0.1); border: 1px solid var(--success-color); padding: 10px; border-radius: 8px; margin-top: 12px; text-align: center; font-size: 0.85rem; color: var(--success-color);">
             ⏳ سفارش شما با موفقیت ثبت شد.<br><b>منتظر تأیید صرافی در اسرع وقت باشید.</b>
         </div>
@@ -339,34 +354,45 @@
 
     <!-- پنل مدیریت (مخصوص ادمین) -->
     <div class="card" id="admin-panel">
-        <div class="card-title" style="color: var(--danger-color)">⚙️ پنل مدیریت صرافی</div>
+        <div class="card-title" style="color: var(--danger-color)">⚙️ ویرایش دائمی آیتم‌های اصلی صرافی</div>
         
-        <div class="form-group">
-            <label>موجودی تومانی:</label>
-            <input type="text" id="admin-toman">
+        <div class="admin-section-box">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">1. تنظیمات مالی و کارمزدها</div>
+            <div class="form-group">
+                <label>نرخ پایه درام (تومان):</label>
+                <input type="number" id="admin-base-rate">
+            </div>
+            <div class="form-group">
+                <label>درصد کارمزد خرید (%):</label>
+                <input type="number" id="admin-buy-fee">
+            </div>
+            <div class="form-group">
+                <label>درصد کارمزد فروش (%):</label>
+                <input type="number" id="admin-sell-fee">
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>موجودی درامی:</label>
-            <input type="text" id="admin-dram">
+        <div class="admin-section-box">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">2. موجودی‌های صرافی</div>
+            <div class="form-group">
+                <label>موجودی تومانی:</label>
+                <input type="text" id="admin-toman">
+            </div>
+            <div class="form-group">
+                <label>موجودی درامی:</label>
+                <input type="text" id="admin-dram">
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>نرخ پایه درام (تومان):</label>
-            <input type="number" id="admin-base-rate">
+        <div class="admin-section-box">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent-color);">3. قوانین و مقررات عمومی</div>
+            <div class="form-group">
+                <label>متن قوانین معامله:</label>
+                <textarea id="admin-rules" rows="4" placeholder="قوانین معامله را اینجا بنویسید..."></textarea>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label>کارمزد خرید (%):</label>
-            <input type="number" id="admin-buy-fee">
-        </div>
-
-        <div class="form-group">
-            <label>کارمزد فروش (%):</label>
-            <input type="number" id="admin-sell-fee">
-        </div>
-
-        <button class="btn-submit" style="background-color: var(--danger-color);" onclick="updateSettings()">ثبت و آپدیت تنظیمات</button>
+        <button class="btn-submit" style="background-color: var(--danger-color);" onclick="updateSettings()">💾 ثبت و به‌روزرسانی دائمی ۵ آیتم</button>
 
         <hr style="border-color: var(--border-color); margin: 14px 0;">
         <div class="card-title" style="color: var(--warning-color)">📋 لیست سفارشات باز</div>
@@ -387,7 +413,8 @@
         buy_fee: 10,
         sell_fee: 10,
         balance_toman: "7,000,000,000 تومان",
-        balance_dram: "10,000,000 درام"
+        balance_dram: "10,000,000 درام",
+        rules: "۱. تمامی تسویه‌ها پس از تأیید فیش انجام می‌شود.\n۲. مسئولیت صحت شماره کارت و حساب بر عهده مشتری است."
     };
 
     let orderDataStep1 = {};
@@ -419,6 +446,9 @@
     function applySettingsUI() {
         document.getElementById('disp-toman').innerText = settings.balance_toman;
         document.getElementById('disp-dram').innerText = settings.balance_dram;
+        if (settings.rules) {
+            document.getElementById('disp-rules').innerText = settings.rules;
+        }
 
         const base = parseFloat(settings.base_rate) || 0;
         const buyFee = parseFloat(settings.buy_fee) || 0;
@@ -435,6 +465,7 @@
         document.getElementById('admin-base-rate').value = settings.base_rate;
         document.getElementById('admin-buy-fee').value = settings.buy_fee;
         document.getElementById('admin-sell-fee').value = settings.sell_fee;
+        document.getElementById('admin-rules').value = settings.rules || "";
 
         calculateOrder();
     }
@@ -520,54 +551,4 @@
         if (file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('file-preview').src = e.target.result;
-                document.getElementById('file-preview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        } else if (file.type === 'application/pdf') {
-            document.getElementById('pdf-preview').innerText = "📄 فایل PDF انتخاب شد: " + file.name;
-        }
-
-        isFileUploaded = true;
-        document.getElementById('btn-remove-file').style.display = 'block';
-        document.getElementById('bank-receipt').disabled = true;
-    }
-
-    function removeUploadedFile() {
-        document.getElementById('bank-receipt').value = "";
-        document.getElementById('bank-receipt').disabled = false;
-        document.getElementById('file-preview').style.display = 'none';
-        document.getElementById('pdf-preview').innerText = "";
-        document.getElementById('btn-remove-file').style.display = 'none';
-        isFileUploaded = false;
-    }
-
-    function submitFinalOrder() {
-        const card = document.getElementById('bank-card').value;
-        const account = document.getElementById('bank-account').value;
-        const tradeType = document.getElementById('trade-type').value;
-        const sheba = document.getElementById('bank-sheba').value;
-        const bankName = document.getElementById('bank-name').value;
-
-        if (!card || !account) {
-            tg.showAlert("لطفاً تمامی مشخصات بانکی (شماره کارت و شماره حساب) را وارد کنید.");
-            return;
-        }
-
-        if (tradeType === 'sell' && !sheba) {
-            tg.showAlert("لطفاً شماره شبا را بدون IR وارد کنید.");
-            return;
-        }
-
-        if (tradeType === 'buy' && !bankName) {
-            tg.showAlert("لطفاً نام بانک را وارد کنید.");
-            return;
-        }
-
-        if (!isFileUploaded) {
-            tg.showAlert("لطفاً تصویر فیش یا فایل PDF واریزی را آپلود نمایید.");
-            return;
-        }
-
-        const orderId = 'AMD-' + Math.floor(100000 + Math.random() * 900000);
-   
+                document.getElementById('file-preview').src = e.targe
