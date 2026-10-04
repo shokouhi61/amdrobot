@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>صرافی آنلاین ارمنستان</title>
-    <script src="[https://telegram.org/js/telegram-web-app.js](https://telegram.org/js/telegram-web-app.js)"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -243,7 +243,7 @@
 
         <div class="form-group">
             <label>مبلغ معامله (به درام):</label>
-            <input type="number" id="order-amount" placeholder="مثلاً 50000" onkeyup="calculateOrder()" oninput="calculateOrder()" onchange="calculateOrder()">
+            <input type="number" id="order-amount" placeholder="مثلاً 50000" oninput="calculateOrder()" onkeyup="calculateOrder()" onchange="calculateOrder()">
         </div>
 
         <div class="form-group">
@@ -319,7 +319,7 @@
     </div>
 
     <!-- دکمه پشتیبانی مستقیم -->
-    <a href="[https://t.me/shokouhi61](https://t.me/shokouhi61)" target="_blank" class="btn-submit btn-support">💬 پشتیبانی آنلاین صرافی (ارتباط مستقیم)</a>
+    <a href="https://t.me/shokouhi61" target="_blank" class="btn-submit btn-support">💬 پشتیبانی آنلاین صرافی (ارتباط مستقیم)</a>
 
     <!-- پنل مدیریت (مخصوص ادمین) -->
     <div class="card" id="admin-panel">
@@ -375,7 +375,7 @@
     tg.expand();
 
     const ADMIN_ID = 48460135;
-    const API_URL = "[https://shokouhi61.pythonanywhere.com/get_settings](https://shokouhi61.pythonanywhere.com/get_settings)";
+    const API_URL = "https://shokouhi61.pythonanywhere.com/get_settings";
 
     let settings = {
         base_rate: 730,
@@ -389,6 +389,7 @@
     let orderDataStep1 = {};
     let isFileUploaded = false;
 
+    // بررسی دسترسی ادمین
     const user = tg.initDataUnsafe?.user;
     if (user && String(user.id) === String(ADMIN_ID)) {
         document.getElementById('admin-panel').style.display = 'block';
@@ -413,8 +414,8 @@
     }
 
     function applySettingsUI() {
-        document.getElementById('disp-toman').innerText = settings.balance_toman;
-        document.getElementById('disp-dram').innerText = settings.balance_dram;
+        document.getElementById('disp-toman').innerText = settings.balance_toman || "7,000,000,000 تومان";
+        document.getElementById('disp-dram').innerText = settings.balance_dram || "10,000,000 درام";
         if (settings.rules) {
             document.getElementById('disp-rules').innerText = settings.rules;
         }
@@ -429,11 +430,11 @@
         document.getElementById('disp-buy-rate').innerText = buyRate + " Toman";
         document.getElementById('disp-sell-rate').innerText = sellRate + " Toman";
 
-        document.getElementById('admin-toman').value = settings.balance_toman;
-        document.getElementById('admin-dram').value = settings.balance_dram;
-        document.getElementById('admin-base-rate').value = settings.base_rate;
-        document.getElementById('admin-buy-fee').value = settings.buy_fee;
-        document.getElementById('admin-sell-fee').value = settings.sell_fee;
+        document.getElementById('admin-toman').value = settings.balance_toman || "";
+        document.getElementById('admin-dram').value = settings.balance_dram || "";
+        document.getElementById('admin-base-rate').value = settings.base_rate || 730;
+        document.getElementById('admin-buy-fee').value = settings.buy_fee || 10;
+        document.getElementById('admin-sell-fee').value = settings.sell_fee || 10;
         document.getElementById('admin-rules').value = settings.rules || "";
 
         calculateOrder();
@@ -501,46 +502,42 @@
 
         document.getElementById('step-1').style.display = 'none';
         document.getElementById('step-2').style.display = 'block';
+        window.scrollTo(0, 0);
     }
 
     function backToStep1() {
         document.getElementById('step-2').style.display = 'none';
-        document.getElementById('step-1').style.display = 'block';
-    }
+        علت صفر ماندن مبلغ کل و باز نشدن مرحله بعد، وجود یک ایراد در فایل **`index.html`** است (کدی که قبلاً ارسال شده بود به دلیل قطع شدن متن در انتهای پاسخ، ناقض و کامل کپی نشده بود). 
 
-    function handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+وقتی کد فرانت‌اند کامل نباشد یا تابع محاسباتی درست خوانده نشود، مقدار مبلغ `NaN` شده و روی `0 Toman` می‌‌ماند؛ در نتیجه دکمه ادامه هم به گام ۲ منتقل نمی‌شود.
 
-        if (isFileUploaded) {
-            tg.showAlert("ابتدا تصویر قبلی را حذف کنید.");
-            event.target.value = "";
-            return;
+برای حل کامل و قطعی این موضوع، کدهای کامل فرانت‌اند (`index.html`) را به همراه کدهای بک‌اند (`main.py`) آماده کرده‌ام:
+
+---
+
+### 1️⃣ **فایل فرانت‌اند: `index.html`**
+*(در GitHub وارد ریپوزیتوری `amdrobot` شوید، فایل `index.html` را edit کرده، کدهای قبلی را کلاً پاک کنید و این کد کامل را قرار دهید)*
+
+```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صرافی آنلاین ارمنستان</title>
+    <script src="[https://telegram.org/js/telegram-web-app.js](https://telegram.org/js/telegram-web-app.js)"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #0284c7;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
         }
 
-        if (file.size > 10 * 1024 * 1024) {
-            tg.showAlert("حجم فایل نباید بیشتر از 10 مگابایت باشد.");
-            event.target.value = "";
-            return;
-        }
-
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('file-preview').src = e.target.result;
-                document.getElementById('file-preview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        } else if (file.type === 'application/pdf') {
-            document.getElementById('pdf-preview').innerText = "📄 فایل PDF انتخاب شد: " + file.name;
-        }
-
-        isFileUploaded = true;
-        document.getElementById('btn-remove-file').style.display = 'block';
-        document.getElementById('bank-receipt').disabled = true;
-    }
-
-    function removeUploadedFile() {
-        document.getElementById('bank-receipt').value = "";
-        document.getElementById('bank-receipt').disabled = false;
-        document.getEl            
+        body {
+            font-family: -apple-system, BlinkMacSyst            
