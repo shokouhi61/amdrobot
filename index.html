@@ -202,10 +202,8 @@
 
 <div class="container">
 
-    <!-- موجودی و نرخ‌های مجزا -->
     <div class="card">
         <div class="card-title">💵 نرخ‌ها و موجودی لحظه‌ای صرافی</div>
-        
         <div class="balance-grid">
             <div class="grid-box">
                 <div class="box-label">موجودی تومان</div>
@@ -229,7 +227,6 @@
         </div>
     </div>
 
-    <!-- گام اول سفارش -->
     <div class="card" id="step-1">
         <div class="card-title">📝 ثبت سفارش معامله (گام ۱ از ۲)</div>
         
@@ -243,7 +240,7 @@
 
         <div class="form-group">
             <label>مبلغ معامله (به درام):</label>
-            <input type="number" id="order-amount" placeholder="مثلاً 50000" oninput="calculateOrder()" onkeyup="calculateOrder()" onchange="calculateOrder()">
+            <input type="number" id="order-amount" placeholder="مثلاً 50000" oninput="calculateOrder()">
         </div>
 
         <div class="form-group">
@@ -264,7 +261,6 @@
         <button class="btn-submit" onclick="goToStep2()">ادامه و تکمیل اطلاعات بانکی ➔</button>
     </div>
 
-    <!-- بخش قوانین و مقررات -->
     <div class="card">
         <div class="card-title" style="color: var(--warning-color)">📜 قوانین و مقررات معامله</div>
         <div id="disp-rules" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; white-space: pre-line;">
@@ -273,7 +269,6 @@
         </div>
     </div>
 
-    <!-- گام دوم سفارش -->
     <div class="card" id="step-2">
         <div class="card-title">💳 مشخصات بانکی و فیش واریزی (گام ۲ از ۲)</div>
 
@@ -309,7 +304,6 @@
         <button class="btn-submit" style="background-color: transparent; border: 1px solid var(--border-color);" onclick="backToStep1()">بازگشت به مرحله قبل</button>
     </div>
 
-    <!-- مرحله نمایش رسید نهایی -->
     <div class="card" id="step-receipt">
         <div class="card-title" style="color: var(--success-color)">🧾 رسید ثبت سفارش</div>
         <div id="receipt-details"></div>
@@ -318,10 +312,8 @@
         </div>
     </div>
 
-    <!-- دکمه پشتیبانی مستقیم -->
     <a href="https://t.me/shokouhi61" target="_blank" class="btn-submit btn-support">💬 پشتیبانی آنلاین صرافی (ارتباط مستقیم)</a>
 
-    <!-- پنل مدیریت (مخصوص ادمین) -->
     <div class="card" id="admin-panel">
         <div class="card-title" style="color: var(--danger-color)">⚙️ ویرایش دائمی آیتم‌های اصلی صرافی (مدیریت)</div>
         
@@ -389,7 +381,6 @@
     let orderDataStep1 = {};
     let isFileUploaded = false;
 
-    // بررسی دسترسی ادمین
     const user = tg.initDataUnsafe?.user;
     if (user && String(user.id) === String(ADMIN_ID)) {
         document.getElementById('admin-panel').style.display = 'block';
@@ -502,42 +493,54 @@
 
         document.getElementById('step-1').style.display = 'none';
         document.getElementById('step-2').style.display = 'block';
-        window.scrollTo(0, 0);
     }
 
     function backToStep1() {
         document.getElementById('step-2').style.display = 'none';
-        علت صفر ماندن مبلغ کل و باز نشدن مرحله بعد، وجود یک ایراد در فایل **`index.html`** است (کدی که قبلاً ارسال شده بود به دلیل قطع شدن متن در انتهای پاسخ، ناقض و کامل کپی نشده بود). 
+        document.getElementById('step-1').style.display = 'block';
+    }
 
-وقتی کد فرانت‌اند کامل نباشد یا تابع محاسباتی درست خوانده نشود، مقدار مبلغ `NaN` شده و روی `0 Toman` می‌‌ماند؛ در نتیجه دکمه ادامه هم به گام ۲ منتقل نمی‌شود.
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-برای حل کامل و قطعی این موضوع، کدهای کامل فرانت‌اند (`index.html`) را به همراه کدهای بک‌اند (`main.py`) آماده کرده‌ام:
-
----
-
-### 1️⃣ **فایل فرانت‌اند: `index.html`**
-*(در GitHub وارد ریپوزیتوری `amdrobot` شوید، فایل `index.html` را edit کرده، کدهای قبلی را کلاً پاک کنید و این کد کامل را قرار دهید)*
-
-```html
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صرافی آنلاین ارمنستان</title>
-    <script src="[https://telegram.org/js/telegram-web-app.js](https://telegram.org/js/telegram-web-app.js)"></script>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #0284c7;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --danger-color: #ef4444;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
+        if (isFileUploaded) {
+            tg.showAlert("ابتدا تصویر قبلی را حذف کنید.");
+            event.target.value = "";
+            return;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSyst            
+        if (file.size > 10 * 1024 * 1024) {
+            tg.showAlert("حجم فایل نباید بیشتر از 10 مگابایت باشد.");
+            event.target.value = "";
+            return;
+        }
+
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('file-preview').src = e.target.result;
+                document.getElementById('file-preview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
+            document.getElementById('pdf-preview').innerText = "📄 فایل PDF انتخاب شد: " + file.name;
+        }
+
+        isFileUploaded = true;
+        document.getElementById('btn-remove-file').style.display = 'block';
+        document.getElementById('bank-receipt').disabled = true;
+    }
+
+    function removeUploadedFile() {
+        document.getElementById('bank-receipt').value = "";
+        document.getElementById('bank-receipt').disabled = false;
+        document.getElementById('file-preview').style.display = 'none';
+        document.getElementById('pdf-preview').innerText = "";
+        document.getElementById('btn-remove-file').style.display = 'none';
+        isFileUploaded = false;
+    }
+
+    function submitFinalOrder() {
+        const card = document.getElementById('bank-card').value;
+        const accou
