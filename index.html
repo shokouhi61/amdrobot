@@ -7,14 +7,16 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #121824;
+            --bg-color: #0f172a;
             --card-bg: #1e293b;
-            --accent-color: #0088cc;
+            --accent-color: #0284c7;
+            --accent-hover: #0369a1;
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
             --danger-color: #ef4444;
             --success-color: #10b981;
+            --warning-color: #f59e0b;
         }
 
         body {
@@ -22,7 +24,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 16px;
+            padding: 12px;
             box-sizing: border-box;
             direction: rtl;
         }
@@ -32,79 +34,97 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .card {
-            background-color: var(--card-bg);
+            background: linear-gradient(145deg, #1e293b, #0f172a);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
 
         .card-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
             margin-bottom: 12px;
             color: var(--accent-color);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .balance-grid {
+        .balance-grid, .rates-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
-        .balance-item {
-            background-color: rgba(255, 255, 255, 0.05);
+        .grid-box {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             padding: 10px;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
         }
 
-        .balance-label {
-            font-size: 0.8rem;
+        .box-label {
+            font-size: 0.75rem;
             color: var(--text-muted);
         }
 
-        .balance-val {
+        .box-val {
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             margin-top: 4px;
+        }
+
+        .quick-btn-container {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .quick-btn {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .quick-btn:active {
+            background-color: var(--accent-color);
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 12px;
+            gap: 4px;
+            margin-bottom: 10px;
         }
 
         label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
 
         input, select {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 10px;
             color: var(--text-color);
-            font-size: 1rem;
+            font-size: 0.95rem;
             outline: none;
             width: 100%;
             box-sizing: border-box;
-        }
-
-        select option {
-            background-color: var(--card-bg);
-            color: var(--text-color);
         }
 
         input:focus, select:focus {
@@ -112,11 +132,12 @@
         }
 
         .summary-box {
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px dashed var(--border-color);
             border-radius: 8px;
-            padding: 12px;
-            margin-top: 10px;
-            font-size: 0.9rem;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 0.85rem;
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -133,20 +154,57 @@
             border: none;
             border-radius: 8px;
             padding: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
-            margin-top: 8px;
+            margin-top: 6px;
+        }
+
+        .btn-support {
+            background-color: #22c55e;
+            margin-bottom: 4px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            box-sizing: border-box;
         }
 
         .btn-admin {
             background-color: var(--danger-color);
         }
 
-        #admin-panel {
+        .btn-confirm-order {
+            background-color: var(--success-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 6px;
+        }
+
+        #file-preview {
+            width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-top: 6px;
             display: none;
-            border-color: var(--danger-color);
+        }
+
+        #step-2, #admin-panel {
+            display: none;
+        }
+
+        .order-card-item {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -154,39 +212,56 @@
 
 <div class="container">
 
-    <!-- موجودی و نرخ آنلاین -->
+    <!-- پشتیبانی سریع -->
+    <a href="https://t.me/shokouhi61" target="_blank" class="btn-submit btn-support">💬 پشتیبانی آنلاین صرافی</a>
+
+    <!-- موجودی و نرخ‌های مجزا -->
     <div class="card">
-        <div class="card-title">💵 موجودی و نرخ لحظه‌ای صرافی</div>
+        <div class="card-title">💵 نرخ‌ها و موجودی لحظه‌ای صرافی</div>
+        
         <div class="balance-grid">
-            <div class="balance-item">
-                <div class="balance-label">موجودی تومان</div>
-                <div class="balance-val" id="disp-toman">در حال دریافت...</div>
+            <div class="grid-box">
+                <div class="box-label">موجودی تومان</div>
+                <div class="box-val" id="disp-toman">در حال دریافت...</div>
             </div>
-            <div class="balance-item">
-                <div class="balance-label">موجودی درام</div>
-                <div class="balance-val" id="disp-dram">در حال دریافت...</div>
+            <div class="grid-box">
+                <div class="box-label">موجودی درام</div>
+                <div class="box-val" id="disp-dram">در حال دریافت...</div>
             </div>
         </div>
-        <div class="summary-row" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; justify-content: center;">
-            <span>نرخ پایه هر درام: <strong id="disp-base-rate" style="color:var(--text-color)">-</strong> تومان</span>
+
+        <div class="rates-grid">
+            <div class="grid-box" style="border-color: rgba(16, 185, 129, 0.3);">
+                <div class="box-label">نرخ خرید صرافی از شما</div>
+                <div class="box-val" id="disp-buy-rate" style="color: var(--success-color);">- تومان</div>
+            </div>
+            <div class="grid-box" style="border-color: rgba(2, 132, 199, 0.3);">
+                <div class="box-label">نرخ فروش صرافی به شما</div>
+                <div class="box-val" id="disp-sell-rate" style="color: var(--accent-color);">- تومان</div>
+            </div>
         </div>
     </div>
 
-    <!-- فرم ثبت سفارش -->
-    <div class="card">
-        <div class="card-title">📝 ثبت سفارش معامله</div>
+    <!-- گام اول سفارش -->
+    <div class="card" id="step-1">
+        <div class="card-title">📝 ثبت سفارش معامله (گام ۱ از ۲)</div>
         
         <div class="form-group">
             <label>نوع معامله:</label>
             <select id="trade-type" onchange="calculateOrder()">
-                <option value="buy">خرید از صرافی</option>
-                <option value="sell">فروش به صرافی</option>
+                <option value="buy">خرید درام از صرافی (ارسال ریال)</option>
+                <option value="sell">فروش درام به صرافی (دریافت ریال)</option>
             </select>
         </div>
 
         <div class="form-group">
             <label>مبلغ معامله (به درام):</label>
             <input type="number" id="order-amount" placeholder="مثلاً 50000" oninput="calculateOrder()">
+            <div class="quick-btn-container">
+                <div class="quick-btn" onclick="setQuickAmount(10000)">۱۰,۰۰۰</div>
+                <div class="quick-btn" onclick="setQuickAmount(50000)">۵۰,۰۰۰</div>
+                <div class="quick-btn" onclick="setQuickAmount(100000)">۱۰۰,۰۰۰</div>
+            </div>
         </div>
 
         <div class="form-group">
@@ -195,7 +270,7 @@
         </div>
 
         <div class="form-group">
-            <label>شماره واتس‌‌اپ / تماس:</label>
+            <label>شماره واتس‌اپ / تماس:</label>
             <input type="text" id="order-whatsapp" placeholder="09123456789">
         </div>
 
@@ -205,44 +280,80 @@
                 <span id="calc-effective-rate">0 تومان</span>
             </div>
             <div class="summary-row">
-                <span>مبلغ قابل پرداخت / دریافت:</span>
+                <span>مبلغ نهایی قابل تسویه:</span>
                 <strong id="calc-total-price" style="color: var(--success-color)">0 تومان</strong>
             </div>
         </div>
 
-        <button class="btn-submit" onclick="submitOrder()">ثبت و ارسال سفارش</button>
+        <button class="btn-submit" onclick="goToStep2()">ادامه و تکمیل اطلاعات بانکی ➔</button>
+    </div>
+
+    <!-- گام دوم سفارش -->
+    <div class="card" id="step-2">
+        <div class="card-title">💳 مشخصات بانکی و فیش (گام ۲ از ۲)</div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">
+            لطفاً اطلاعات بانکی خود را جهت تسویه ریالی دقیق وارد کرده و در صورت انجام واریزی، تصویر فیش را آپلود نمایید.
+        </p>
+
+        <div class="form-group">
+            <label>شماره کارت بانکی:</label>
+            <input type="text" id="bank-card" placeholder="603799xxxxxxxxxx">
+        </div>
+
+        <div class="form-group">
+            <label>شماره حساب:</label>
+            <input type="text" id="bank-account" placeholder="شماره حساب بانکی">
+        </div>
+
+        <div class="form-group" id="sheba-group">
+            <label>شماره شبا (IR):</label>
+            <input type="text" id="bank-sheba" placeholder="IR000000000000000000000000">
+        </div>
+
+        <div class="form-group">
+            <label>تصویر فیش واریزی (اختیاری):</label>
+            <input type="file" id="bank-receipt" accept="image/*" onchange="previewImage(event)">
+            <img id="file-preview" alt="پیش‌نمایش فیش">
+        </div>
+
+        <button class="btn-submit" onclick="submitFinalOrder()">تکمیل و ارسال نهایی سفارش</button>
+        <button class="btn-submit" style="background-color: transparent; border: 1px solid var(--border-color);" onclick="backToStep1()">بازگشت به مرحله قبل</button>
     </div>
 
     <!-- پنل مدیریت (مخصوص ADMIN_ID) -->
     <div class="card" id="admin-panel">
-        <div class="card-title" style="color: var(--danger-color)">⚙️ تنظیمات عمومی مدیریت (سراسری)</div>
+        <div class="card-title" style="color: var(--danger-color)">⚙️ پنل مدیریت سراسری صرافی</div>
         
         <div class="form-group">
             <label>موجودی تومانی صرافی:</label>
-            <input type="text" id="admin-toman" placeholder="7,000,000,000 تومان">
+            <input type="text" id="admin-toman">
         </div>
 
         <div class="form-group">
             <label>موجودی درامی صرافی:</label>
-            <input type="text" id="admin-dram" placeholder="10,000,000 درام">
+            <input type="text" id="admin-dram">
         </div>
 
         <div class="form-group">
             <label>نرخ پایه درام (تومان):</label>
-            <input type="number" id="admin-base-rate" placeholder="720">
+            <input type="number" id="admin-base-rate">
         </div>
 
         <div class="form-group">
             <label>کارمزد خرید از مشتری (%):</label>
-            <input type="number" id="admin-buy-fee" placeholder="10">
+            <input type="number" id="admin-buy-fee">
         </div>
 
         <div class="form-group">
             <label>کارمزد فروش به مشتری (%):</label>
-            <input type="number" id="admin-sell-fee" placeholder="10">
+            <input type="number" id="admin-sell-fee">
         </div>
 
-        <button class="btn-submit btn-admin" onclick="updateSettings()">ثبت و آپدیت برای همه کاربران</button>
+        <button class="btn-submit btn-admin" onclick="updateSettings()">ثبت و آپدیت تنظیمات برای همه</button>
+
+        <hr style="border-color: var(--border-color); margin: 14px 0;">
+        <div class="card-title" style="color: var(--warning-color)">📋 لیست سفارشات باز جهت تأیید</div>
+        <div id="open-orders-list">در حال بارگذاری سفارشات...</div>
     </div>
 
 </div>
@@ -262,27 +373,29 @@
         balance_dram: "10,000,000 درام"
     };
 
+    let orderDataStep1 = {};
+
     // بررسی دسترسی ادمین
     const user = tg.initDataUnsafe?.user;
     if (user && user.id === ADMIN_ID) {
         document.getElementById('admin-panel').style.display = 'block';
     }
 
-    // دریافت تنظیمات زنده از سرور Flask
     async function fetchSettings() {
         try {
             const res = await fetch(API_URL + "?t=" + new Date().getTime());
             if (res.ok) {
                 const data = await res.json();
-                settings.base_rate = parseFloat(data.base_rate) || 720;
-                settings.buy_fee = parseFloat(data.buy_fee) || 0;
-                settings.sell_fee = parseFloat(data.sell_fee) || 0;
-                settings.balance_toman = data.balance_toman || "7,000,000,000 تومان";
-                settings.balance_dram = data.balance_dram || "10,000,000 درام";
-                applySettingsUI();
+                if (data.settings) {
+                    settings = data.settings;
+                    applySettingsUI();
+                }
+                if (data.open_orders && user && user.id === ADMIN_ID) {
+                    renderOpenOrders(data.open_orders);
+                }
             }
         } catch (e) {
-            console.log("خطا در دریافت تنظیمات زنده:", e);
+            console.log("خطا در دریافت تنظیمات:", e);
             applySettingsUI();
         }
     }
@@ -290,9 +403,17 @@
     function applySettingsUI() {
         document.getElementById('disp-toman').innerText = settings.balance_toman;
         document.getElementById('disp-dram').innerText = settings.balance_dram;
-        document.getElementById('disp-base-rate').innerText = settings.base_rate;
 
-        // پر کردن مقادیر پنل ادمین
+        const base = parseFloat(settings.base_rate) || 0;
+        const buyFee = parseFloat(settings.buy_fee) || 0;
+        const sellFee = parseFloat(settings.sell_fee) || 0;
+
+        const buyRate = Math.round(base * (1 - buyFee / 100));
+        const sellRate = Math.round(base * (1 + sellFee / 100));
+
+        document.getElementById('disp-buy-rate').innerText = buyRate.toLocaleString('fa-IR') + " تومان";
+        document.getElementById('disp-sell-rate').innerText = sellRate.toLocaleString('fa-IR') + " تومان";
+
         document.getElementById('admin-toman').value = settings.balance_toman;
         document.getElementById('admin-dram').value = settings.balance_dram;
         document.getElementById('admin-base-rate').value = settings.base_rate;
@@ -302,34 +423,76 @@
         calculateOrder();
     }
 
+    function setQuickAmount(val) {
+        document.getElementById('order-amount').value = val;
+        calculateOrder();
+    }
+
     function calculateOrder() {
         const tradeType = document.getElementById('trade-type').value;
         const amount = parseFloat(document.getElementById('order-amount').value) || 0;
         const baseRate = parseFloat(settings.base_rate) || 0;
-        const fee = tradeType === 'buy' ? settings.buy_fee : settings.sell_fee;
+        const buyFee = parseFloat(settings.buy_fee) || 0;
+        const sellFee = parseFloat(settings.sell_fee) || 0;
 
         let effectiveRate = baseRate;
         if (tradeType === 'buy') {
-            effectiveRate = baseRate * (1 + (fee / 100));
+            effectiveRate = baseRate * (1 + (sellFee / 100));
         } else {
-            effectiveRate = baseRate * (1 - (fee / 100));
+            effectiveRate = baseRate * (1 - (buyFee / 100));
         }
 
         const totalPrice = amount * effectiveRate;
-
         document.getElementById('calc-effective-rate').innerText = Math.round(effectiveRate).toLocaleString('fa-IR') + ' تومان';
         document.getElementById('calc-total-price').innerText = Math.round(totalPrice).toLocaleString('fa-IR') + ' تومان';
     }
 
-    function submitOrder() {
-        const tradeType = document.getElementById('trade-type').value;
+    function goToStep2() {
         const amount = document.getElementById('order-amount').value;
         const name = document.getElementById('order-name').value;
         const whatsapp = document.getElementById('order-whatsapp').value;
-        const totalPrice = document.getElementById('calc-total-price').innerText;
 
         if (!amount || !name || !whatsapp) {
             tg.showAlert("لطفاً تمامی فیلدها را پر کنید.");
+            return;
+        }
+
+        orderDataStep1 = {
+            trade_type: document.getElementById('trade-type').value === 'buy' ? 'خرید درام از صرافی' : 'فروش درام به صرافی',
+            amount: amount,
+            name: name,
+            whatsapp: whatsapp,
+            total_price: document.getElementById('calc-total-price').innerText
+        };
+
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('step-2').style.display = 'block';
+    }
+
+    function backToStep1() {
+        document.getElementById('step-2').style.display = 'none';
+        document.getElementById('step-1').style.display = 'block';
+    }
+
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('file-preview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        if(event.target.files[0]) {
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    }
+
+    function submitFinalOrder() {
+        const card = document.getElementById('bank-card').value;
+        const account = document.getElementById('bank-account').value;
+        const sheba = document.getElementById('bank-sheba').value;
+
+        if (!card && !account) {
+            tg.showAlert("لطفاً حداقل شماره کارت یا شماره حساب خود را وارد کنید.");
             return;
         }
 
@@ -337,11 +500,10 @@
         const payload = {
             action: "submit_order",
             order_id: orderId,
-            name: name,
-            whatsapp: whatsapp,
-            amount: amount,
-            trade_type: tradeType === 'buy' ? 'خرید از صرافی' : 'فروش به صرافی',
-            total_price: totalPrice
+            ...orderDataStep1,
+            card_number: card,
+            account_number: account,
+            sheba_number: sheba
         };
 
         tg.sendData(JSON.stringify(payload));
@@ -356,7 +518,34 @@
             buy_fee: document.getElementById('admin-buy-fee').value,
             sell_fee: document.getElementById('admin-sell-fee').value
         };
+        tg.sendData(JSON.stringify(payload));
+    }
 
+    function renderOpenOrders(orders) {
+        const container = document.getElementById('open-orders-list');
+        if (!orders || orders.length === 0) {
+            container.innerHTML = "<p style='color:var(--text-muted); font-size:0.8rem;'>سفارش باز پیدا نشد.</p>";
+            return;
+        }
+        let html = "";
+        orders.forEach(o => {
+            html += `
+                <div class="order-card-item">
+                    <div><b>کد:</b> ${o.order_id} | <b>نام:</b> ${o.name}</div>
+                    <div><b>نوع:</b> ${o.trade_type} | <b>مبلغ:</b> ${o.total_price}</div>
+                    <div><b>کارت:</b> ${o.card_number || '-'}</div>
+                    <button class="btn-confirm-order" onclick="confirmOrder('${o.order_id}')">✅ تأیید سفارش و ارسال پیام به مشتری</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function confirmOrder(orderId) {
+        const payload = {
+            action: "confirm_order",
+            order_id: orderId
+        };
         tg.sendData(JSON.stringify(payload));
     }
 
@@ -364,5 +553,4 @@
 </script>
 
 </body>
-    </html>
-    
+</html>
